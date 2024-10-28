@@ -1,0 +1,150 @@
+// ATOMS [ MISC ]  ####################################################################################################
+
+// BASE +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+// A.0. VARIABLES -----------------------------------------
+
+$btn-clr: $yellow;
+$btn-clr-2: $black;
+$btn-border-color: transparent;
+$buttonFont: $garetHeavy;
+$buttonFontWeight: 500;
+$buttonFontSize: 15px;
+$buttonLineHeight: normal;
+$buttonMinWidth: 150px;
+
+$lightButtonFontWeight: 400;
+$mediumButtonFontWeight: 600;
+$heavyButtonFontWeight: 900;
+
+$radius-sml: 0;
+$radius-med: 10px;
+$radius-lrg: 50px;
+
+// A.0. END - VARIABLES -----------------------------------
+
+// A.1. DEFAULT BUTTON ------------------------------------
+
+.aBtn {
+  display: inline-block;
+  padding: 15px 25px;
+  margin: 0 15px;
+  font-style: normal;
+  font-family: $buttonFont;
+  font-weight: $buttonFontWeight;
+  font-size: $buttonFontSize;
+  line-height: $buttonLineHeight;
+  text-align: center;
+  text-transform: none;
+  text-decoration: none;
+  white-space: nowrap;
+  vertical-align: middle;
+  -ms-touch-action: manipulation;
+  touch-action: manipulation;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  background-image: none;
+  border: 0;
+  border-radius: $radius-lrg;
+  color: $btn-clr-2;
+  background-color: $btn-clr;
+  border-color: $btn-border-color;
+  text-rendering: optimizeLegibility;
+  outline: none;
+  min-width: $buttonMinWidth;
+  transition: 0.3s;
+  letter-spacing: 2px;
+
+  &.btnSmall {
+    min-width: auto;
+    padding: 5px 8px;
+    margin: 0 3px;
+  }
+
+  // button spacing
+  &:first-child {
+    margin-left: 0;
+  }
+  &:last-child {
+    margin-right: 0;
+  }
+
+  // default hover/active classes
+  &.focus,
+  &:focus,
+  &:hover,
+  &.active,
+  &:focus,
+  &.focus,
+  &:active:focus,
+  &:active.focus,
+  &.active:focus,
+  &.active.focus {
+    color: $btn-clr;
+    background-color: $btn-clr-2;
+    border-color: $btn-clr-2;
+    outline: none;
+    text-decoration: none;
+    transition: 0.3s;
+  }
+
+  // A.1.2. HOLLOW BLUE BUTTON ----------------------------
+
+  &.btnAlt {
+    color: $black;
+    background-color: $orange;
+    border-color: $btn-clr-2;
+    // Active styles
+    &.focus,
+    &:focus,
+    &:hover,
+    &.active {
+      color: $btn-clr-2;
+      background-color: $btn-clr;
+      border-color: $btn-clr;
+    }
+    // Modifiers
+    & {
+    }
+  }
+
+  // A.1.2. END : HOLLOW BLUE BUTTON ----------------------
+}
+
+// A.1. END : DEFAULT BUTTON ------------------------------
+
+.button--green {
+  display: inline-block;
+  border-radius: 4px;
+  border: 1px solid gold;
+  color: #3b8070;
+  text-decoration: none;
+  padding: 10px 30px;
+}
+
+.button--green:hover {
+  color: #fff;
+  background-color: #3b8070;
+}
+
+.button--grey {
+  display: inline-block;
+  border-radius: 4px;
+  border: 1px solid #35495e;
+  color: #35495e;
+  text-decoration: none;
+  padding: 10px 30px;
+  margin-left: 15px;
+}
+
+.button--grey:hover {
+  color: #fff;
+  background-color: #35495e;
+}
+
+// END ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+// END OF FILE ########################################################################################################

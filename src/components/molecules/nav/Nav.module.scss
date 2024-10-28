@@ -1,0 +1,205 @@
+// MOLECULE [ NAVIGATION ] ############################################################################################
+
+@import "../../../scss/.base/_module-index";
+
+// A. GLOBAL STYLES +++++++++++++++++++++++++++++++++++++
+.oNavMain {
+  position: absolute;
+  z-index: 100;
+  .mNavMobile {
+    width: 100%;
+    top: 0;
+    bottom: 0;
+    &.navOpen {
+      position: fixed;
+      background-color: white;
+      opacity: 1;
+      transition: 0.3s;
+      z-index: 100;
+    }
+    &.navClosed {
+      opacity: 0;
+    }
+  }
+  .mNavDesktop {
+    position: fixed;
+    width: 100%;
+    .mLogo {
+      display: inline-block;
+      vertical-align: middle;
+      background-color: $orange;
+    }
+    .mMenuList {
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
+}
+
+.mLogo {
+  position: relative;
+  display: none;
+  max-width: 200px;
+  padding-right: 10px;
+  .aLogo {
+    width: 100%;
+    height: auto;
+  }
+}
+
+.mDonateButton {
+  z-index: 100;
+  @include vertical-align(absolute);
+  right: 1%;
+  &.mobileLink {
+    right: auto;
+    top: auto;
+    left: 1%;
+    bottom: 2%;
+  }
+  .aBtn {
+    padding: 15px 25px;
+  }
+}
+
+.mMenu {
+  display: block;
+  margin: 0 80px 0 auto;
+  .navLink {
+    display: inline-block;
+    position: relative;
+    &:after {
+      position: absolute;
+      bottom: 10px;
+      width: 0;
+      content: "";
+      height: 2px;
+      background-color: #000;
+      @include center-align();
+      transition: 0.3s;
+    }
+    &:hover {
+      &::after {
+        width: 100%;
+        transition: 0.3s;
+      }
+    }
+  }
+}
+
+.aLink {
+  margin: 20px 15px;
+  display: block;
+  color: black;
+  text-decoration: none;
+}
+.burgerWrapper {
+  position: fixed;
+  z-index: 10;
+  top: 10px;
+  right: 10px;
+  &.navOpen {
+    opacity: 0;
+  }
+}
+.mNavBurger {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+.navList {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+.navItem {
+  position: relative;
+}
+
+.navLink,
+.dropdownItem a {
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  display: block;
+}
+
+.aDropdown {
+  display: block;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: white;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.aDropdownItem {
+  border-bottom: 1px solid #575757;
+  white-space: nowrap;
+}
+
+.dropdownItem:last-child {
+  border-bottom: none;
+}
+
+// A. END +++++++++++++++++++++++++++++++++++++++++++++++
+
+// B. GRACEFUL DEGRADATION ++++++++++++++++++++++++++++++
+
+@media ($md-dn) {
+  .mMenu {
+    margin: 50px auto;
+    padding: 0;
+    .navLink {
+      display: block;
+    }
+  }
+}
+
+// B. END +++++++++++++++++++++++++++++++++++++++++++++++
+
+// C. MIN-WIDTH: 768px ++++++++++++++++++++++++++++++++++
+
+@media ($md-up) {
+}
+
+// C. END +++++++++++++++++++++++++++++++++++++++++++++++
+
+// D. MIN-WIDTH: 992px ++++++++++++++++++++++++++++++++++
+
+@media ($lg-up) {
+  .burgerWrapper {
+    display: none;
+  }
+
+  .mMenu {
+    margin: 0 auto;
+    padding: 0;
+    background-color: white;
+    position: sticky;
+  }
+  .aLink {
+    margin: 15px 7px;
+  }
+}
+
+// D. END +++++++++++++++++++++++++++++++++++++++++++++++
+
+// E. MIN-WIDTH: 1200px +++++++++++++++++++++++++++++++++
+
+@media ($xl-up) {
+  .aLink {
+    margin: 15px;
+  }
+}
+
+// E. END +++++++++++++++++++++++++++++++++++++++++++++++
+
+// END OF FILE ########################################################################################################

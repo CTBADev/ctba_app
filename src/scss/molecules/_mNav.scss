@@ -1,0 +1,133 @@
+// MOLECULE [ NAVIGATION ] ############################################################################################
+
+@import "../.base/_module-index";
+
+// A. GLOBAL STYLES +++++++++++++++++++++++++++++++++++++
+.navMain {
+  .mNavMobile {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 100;
+    transform: translateY(-100%);
+    transition: 0.3s;
+    opacity: 1;
+    &.navOpen {
+      background-color: white;
+      transform: translateY(0%);
+      opacity: 1;
+      transition: 0.3s;
+    }
+    &.navClosed {
+      opacity: 0;
+    }
+  }
+}
+
+.mMenu {
+  display: block;
+  margin: 0 80px 0 auto;
+  text-align: right;
+  .navLink {
+    display: inline-block;
+    position: relative;
+    &:after {
+      position: absolute;
+      bottom: 10px;
+      width: 0;
+      content: "";
+      height: 2px;
+      background-color: #000;
+      @include center-align();
+      transition: 0.3s;
+    }
+    &:hover {
+      &::after {
+        width: 100%;
+        transition: 0.3s;
+      }
+    }
+  }
+}
+
+.aLink {
+  margin: 15px;
+  display: block;
+  color: black;
+  text-decoration: none;
+}
+.burgerWrapper {
+  position: fixed;
+  z-index: 10;
+  top: 10px;
+  right: 10px;
+}
+.mNavBurger {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+// A. END +++++++++++++++++++++++++++++++++++++++++++++++
+
+// B. GRACEFUL DEGRADATION ++++++++++++++++++++++++++++++
+
+@media ($md-dn) {
+  .mMenu {
+    margin: 50px auto;
+    padding: 0;
+    text-align: center;
+    .navLink {
+      display: block;
+    }
+  }
+}
+
+// B. END +++++++++++++++++++++++++++++++++++++++++++++++
+
+// C. MIN-WIDTH: 768px ++++++++++++++++++++++++++++++++++
+
+@media ($md-up) {
+}
+
+// C. END +++++++++++++++++++++++++++++++++++++++++++++++
+
+// D. MIN-WIDTH: 992px ++++++++++++++++++++++++++++++++++
+
+@media ($lg-up) {
+  .burgerWrapper {
+    display: none;
+  }
+
+  .oNavMain {
+    position: sticky;
+    bottom: 0;
+    box-shadow: 0 3px 10px rgba(black, 0.2);
+  }
+
+  .mMenu {
+    margin: 0 auto;
+    padding: 0;
+    text-align: center;
+    background-color: white;
+    position: sticky;
+  }
+  .aLink {
+    margin: 15px 7px;
+  }
+}
+
+// D. END +++++++++++++++++++++++++++++++++++++++++++++++
+
+// E. MIN-WIDTH: 1200px +++++++++++++++++++++++++++++++++
+
+@media ($xl-up) {
+  .aLink {
+    margin: 15px;
+  }
+}
+
+// E. END +++++++++++++++++++++++++++++++++++++++++++++++
+
+// END OF FILE ########################################################################################################

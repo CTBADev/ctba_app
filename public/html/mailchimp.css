@@ -1,0 +1,131 @@
+/* MOLECULE [ NAVIGATION ] ######################################################################################### */
+
+/* A. GLOBAL STYLES ++++++++++++++++++++++++++++++++++++ */
+
+body {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+html {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  overflow-x: hidden;
+  font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
+  word-spacing: 1px;
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.oForm {
+  margin: 0 !important;
+  background-color: orange;
+  border-radius: 40px;
+  padding: 30px 50px;
+  display: flex;
+  gap: 30px;
+  align-items: center;
+}
+
+.mc-field-group.oInput {
+  display: inline-block !important;
+  clear: none !important;
+  width: 48% !important;
+  background-color: transparent !important;
+  vertical-align: top;
+  min-height: 90px !important;
+}
+.mc-field-group.oInput:nth-child(1) {
+  margin-right: 2% !important;
+}
+
+.oForm .mInput {
+  width: 100%;
+  position: relative;
+  background-color: white !important;
+  display: block;
+  min-height: 60px;
+}
+
+.oForm .mInput .aInput {
+  position: relative;
+  background-color: transparent !important;
+  width: 100%;
+  height: 60px;
+  padding-left: 20px;
+  font-family: garetHeavy;
+  border: 0;
+  z-index: 1;
+}
+
+.oForm .mInput .aInput:placeholder-shown + .aText {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 0;
+  transition: 0.3s;
+  color: black;
+  font-size: 18px;
+}
+
+.oForm .mInput .aText {
+  z-index: 0;
+  display: block;
+  position: absolute;
+  top: -25px;
+  left: 20px;
+  transition: 0.6s;
+  color: white;
+  font-size: 14px;
+}
+
+.mce_inline_error {
+  position: absolute !important;
+}
+
+#mc_embed_signup #mc-embedded-subscribe-form div.mce_inline_error {
+  bottom: -15px;
+}
+
+/* #mc_embed_signup div#mce-responses:not(:empty) {
+  top: 0 !important;
+  bottom: 0 !important;
+} */
+
+#mc_embed_signup div#mce-responses {
+  position: absolute;
+  top: 50% !important;
+  transform: translateY(-50%);
+  background: white;
+  z-index: 100;
+  left: 0;
+  right: 0;
+  width: 100% !important;
+  text-align: center;
+  float: none !important;
+  top: -1.4em;
+  padding: 0 !important;
+  overflow: hidden;
+  margin: 0 !important;
+  clear: none !important;
+}
+
+#mc_embed_signup div#mce-responses * {
+  width: 100% !important;
+  padding: 100px 0 !important;
+}

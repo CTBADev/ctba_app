@@ -1,0 +1,82 @@
+// GLOBAL [ TYPOGRAPHY ]  #############################################################################################
+
+// A. FONT SOURCE +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+@import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Exo+2:wght@600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cormorant:wght@300;400;500&display=swap");
+
+$font: "Garet", sans-serif;
+
+@font-face {
+  font-family: Garet-Heavy;
+  src: url("../../fonts/garet/Garet-Heavy.ttf") format("truetype");
+  src: url("../../fonts/garet/Garet-Heavy.woff") format("woff");
+}
+
+$garetHeavy: "Garet-Heavy", sans-serif;
+
+@font-face {
+  font-family: Garet;
+  src: url("../../fonts/garet/Garet-Book.ttf") format("truetype");
+  src: url("../../fonts/garet/Garet-Book.woff") format("woff");
+}
+
+$garet: "Garet", sans-serif;
+
+// A.2. RESPONSIVE FONT VARIABLES -------------------------
+// font-size: calc([minimum size] + ([maximum size] - [minimum size]) * ((100vw - [minimum viewport width]) / ([maximum viewport width] - [minimum viewport width])));
+
+$view-min-xs: 320;
+$view-max-md: 1400;
+
+// A.2. END -----------------------------------------------
+
+// A.3. TYPOGRAPHY STYING ---------------------------------
+
+// Scaled -------------------
+$sf-min-xs: 20;
+$sf-max-md: 22;
+$sf-max: 22;
+
+$sf-minLH-xs: 26;
+$sf-maxLH-md: 30;
+$sf-maxLH: 30;
+
+@mixin scaledFont(
+  $sf-min-xs,
+  $sf-max-md,
+  $sf-max,
+  $sf-minLH-xs,
+  $sf-maxLH-md,
+  $sf-maxLH
+) {
+  font-size: calc(
+    #{$sf-min-xs}px + (#{$sf-max-md} - #{$sf-min-xs}) *
+      ((100vw - #{$view-min-xs}px) / (#{$view-max-md} - #{$view-min-xs}))
+  );
+  line-height: calc(
+    #{$sf-minLH-xs}px + (#{$sf-maxLH-md} - #{$sf-minLH-xs}) *
+      ((100vw - #{$view-min-xs}px) / (#{$view-max-md} - #{$view-min-xs}))
+  );
+  @media ($xxl-up) {
+    font-size: #{$sf-max}px;
+    line-height: #{$sf-maxLH}px;
+  }
+}
+// END: Scaled --------------
+
+// Fixed --------------------
+@mixin font($size) {
+  font-size: #{$size}px;
+  line-height: normal;
+  @media ($xxl-up) {
+    font-size: #{$size}px;
+    line-height: normal;
+  }
+}
+// Fixed --------------------
+
+// A.3. END -----------------------------------------------
+
+// END OF FILE ########################################################################################################

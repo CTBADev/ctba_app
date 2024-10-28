@@ -1,0 +1,127 @@
+// COMPONENT [ BURGER MENU ] ##########################################################################################
+
+@import "../../../scss/.base/_module-index";
+
+// A.1. COMPONENT STYLE -----------------------------------
+
+.mBurger {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  transition: 0.6s;
+  .aBar {
+    position: absolute;
+    @include center-align();
+    display: block;
+    width: 18px;
+    height: 2px;
+    background-color: #000;
+    border-radius: 3px;
+    z-index: 1;
+    &.barOne {
+      top: 5px;
+      transition: 0.3s;
+    }
+    &.barTwo {
+      @include middle-align();
+      &:before {
+        content: "";
+        background-color: #000;
+        position: absolute;
+        width: 18px;
+        height: 2px;
+        border-radius: 3px;
+        z-index: 100;
+        transition: 0.3s;
+        opacity: 0;
+      }
+      &:after {
+        content: "";
+        background-color: #000;
+        position: absolute;
+        width: 18px;
+        height: 2px;
+        border-radius: 3px;
+        z-index: 100;
+        transition: 0.6s;
+        opacity: 0;
+      }
+    }
+    &.barThree {
+      bottom: 5px;
+      transition: 0.3s;
+    }
+  }
+  &.burgerOn {
+    transition: 0.6s;
+    .aBar {
+      &.barOne,
+      &.barThree {
+        width: 0;
+        transition: 0.3s;
+      }
+      &.barTwo {
+        background-color: transparent;
+        &:before {
+          opacity: 1;
+          transform: rotate(135deg);
+          transition: 0.6s;
+        }
+        &:after {
+          opacity: 1;
+          transform: rotate(45deg);
+          transition: 0.3s;
+        }
+      }
+    }
+  }
+}
+
+// A.1. END -----------------------------------------------
+
+// B. MEDIA QUERIES ---------------------------------------
+
+// B.1. GRACEFUL DEGRADATION ---------------
+
+@media ($md-dn) {
+}
+
+@media ($xs-dn) {
+}
+
+// B.1. END --------------------------------
+
+// B.2. PROGRESSIVE ENHANCEMENT ------------
+// 576px up
+@media ($sm-up) {
+}
+
+// 768px up
+@media ($md-up) {
+}
+
+// 992px up
+@media ($lg-up) {
+}
+
+// 1200px up
+@media ($xl-up) {
+}
+
+// 1400px up
+@media ($xxl-up) {
+}
+
+// 1920px up
+@media ($hd-up) {
+}
+
+// B.2. END --------------------------------
+
+// B. END -------------------------------------------------
+
+// END OF FILE ########################################################################################################

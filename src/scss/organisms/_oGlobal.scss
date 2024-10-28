@@ -1,0 +1,135 @@
+// 3. PAGES [ 3.0. GLOBAL ] ###########################################################################################
+
+// A. GLOBAL STYLES +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+// A.2. GENERAL CARDS -------------------------------------
+
+.mBlockContent {
+  h4 {
+    margin-bottom: 10px;
+  }
+  ul {
+    margin-bottom: 15px;
+    font-size: 14px;
+  }
+}
+
+footer {
+  padding: 50px 0 50px;
+  .footer-col-1 {
+    order: 1;
+  }
+  .footer-col-2 {
+    order: 3;
+  }
+  .footer-col-3 {
+    order: 2;
+    .mWhatsappQR {
+      margin: 30px auto 15px;
+    }
+    .aWhatsappText {
+      margin-bottom: 30px;
+    }
+  }
+}
+
+.oFooterMenu {
+  display: flex;
+  &._dir-horizontal {
+    flex-direction: row;
+    justify-content: center;
+  }
+  &._dir-vertical {
+    flex-direction: column;
+    .aListItem {
+      display: block;
+      .aFooterLink {
+        text-decoration: none;
+        color: black;
+        background-color: white;
+        display: block;
+        padding: 7px 5px;
+        margin-bottom: 8px;
+      }
+    }
+  }
+  .m-icon {
+    width: 50px;
+    height: 50px;
+    display: inline-block;
+    vertical-align: middle;
+    * {
+      width: 100% !important;
+      height: 100% !important;
+    }
+    .a-link-text {
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
+}
+
+// A.2. END -----------------------------------------------
+
+// A. GLOBAL STYLES +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+// B. GRACEFUL DEGRADATION ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+@media ($md-dn) {
+}
+
+// B. END +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+// C. MIN-WIDTH: 768px ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+@media ($md-up) {
+  footer {
+    padding: 80px 0;
+    .footer-col-1 {
+      order: 1;
+    }
+    .footer-col-2 {
+      order: 2;
+    }
+    .footer-col-3 {
+      order: 3;
+      .mWhatsappQR {
+        margin: 0 auto 15px;
+      }
+      .aWhatsappText {
+        margin-bottom: 30px;
+      }
+    }
+  }
+
+  .oFooterMenu {
+    &._dir-vertical {
+      .aListItem {
+        .aFooterLink {
+          text-decoration: underline;
+          color: white;
+          background-color: transparent;
+          display: block;
+        }
+      }
+    }
+  }
+}
+
+// C. END +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+// D. MIN-WIDTH: 992px ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+@media ($lg-up) {
+}
+
+// D. END +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+// E. MIN-WIDTH: 1200px +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+@media ($xl-up) {
+}
+
+// E. END +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+// END OF FILE ########################################################################################################

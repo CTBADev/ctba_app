@@ -1,0 +1,64 @@
+// COMPONENT [ TEXT IMAGE BLOCK ] #####################################################################################
+
+@import "../.base/_module-index";
+
+.oTextImageBlock {
+  // A. GLOBAL STYLES +++++++++++++++++++++++++++++++++++++
+
+  .oBlockBody {
+  }
+  .oBlockImage {
+    margin-bottom: 30px;
+  }
+
+  // A. END +++++++++++++++++++++++++++++++++++++++++++++++
+
+  // B. GRACEFUL DEGRADATION ++++++++++++++++++++++++++++++
+
+  @media ($md-dn) {
+  }
+
+  // B. END +++++++++++++++++++++++++++++++++++++++++++++++
+
+  // C. MIN-WIDTH: 768px ++++++++++++++++++++++++++++++++++
+
+  @media ($md-up) {
+    .oBlockBody {
+      padding-left: 12%;
+      align-self: center;
+    }
+    .oBlockImage {
+      align-self: center;
+      margin-bottom: 0;
+    }
+
+    &.__altYes {
+      .oBlockBody {
+        order: 1;
+        padding-left: 0;
+        padding-right: 12%;
+      }
+      .oBlockImage {
+        order: 2;
+      }
+    }
+  }
+
+  // C. END +++++++++++++++++++++++++++++++++++++++++++++++
+
+  // D. MIN-WIDTH: 992px ++++++++++++++++++++++++++++++++++
+
+  @media ($lg-up) {
+  }
+
+  // D. END +++++++++++++++++++++++++++++++++++++++++++++++
+
+  // E. MIN-WIDTH: 1200px +++++++++++++++++++++++++++++++++
+
+  @media ($xl-up) {
+  }
+
+  // E. END +++++++++++++++++++++++++++++++++++++++++++++++
+}
+
+// END OF FILE ########################################################################################################
