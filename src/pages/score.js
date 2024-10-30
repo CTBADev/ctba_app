@@ -22,14 +22,17 @@ const GameScore = () => {
     <div>
       <h1>Select a Game to Update Scores</h1>
       {selectedGame ? (
-        <Scoreboard
-          entryId={selectedGame.id}
-          initialTeamA={selectedGame.teamA}
-          initialTeamB={selectedGame.teamB}
-          initialScoreA={selectedGame.scoreA}
-          initialScoreB={selectedGame.scoreB}
-          status={selectedGame.status}
-        />
+        <>
+          <Scoreboard
+            entryId={selectedGame.id}
+            initialTeamA={selectedGame.teamA}
+            initialTeamB={selectedGame.teamB}
+            initialScoreA={selectedGame.scoreA}
+            initialScoreB={selectedGame.scoreB}
+            status={selectedGame.status}
+          />
+          <button onClick={() => setSelectedGame(null)}>back to list</button>
+        </>
       ) : (
         <div className="game-list">
           {games.map((game) => (
