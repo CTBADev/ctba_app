@@ -50,6 +50,10 @@ fntH5 * {
   font-family: $garet;
   font-weight: 800;
 }
+.fnt150,
+.fnt150 * {
+  @include scaledFont(26, 150, 150, 32, 150, 150);
+}
 
 .fnt72f,
 .fnt72f * {
