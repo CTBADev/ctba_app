@@ -245,7 +245,7 @@ const Scoreboard = ({
             <button onClick={() => setFoulsB(0)}>Reset Fouls</button>
           </div>
 
-          <div className="timeOuts">
+          <div className={classes.mTimeOuts}>
             <p>Fouls: {timeOutsB}</p>
             <div className="foul-icons">
               {[...Array(timeOutsB)].map((_, index) => (
