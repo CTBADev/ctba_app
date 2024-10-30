@@ -198,7 +198,7 @@ const Scoreboard = ({
           </div>
 
           <div className="timeOuts">
-            <p>Fouls: {timeOutsA}</p>
+            <p>Timeouts: {timeOutsA}</p>
             <div className="foul-icons">
               {[...Array(timeOutsA)].map((_, index) => (
                 <div key={index} className="foul-icon"></div>
@@ -246,7 +246,7 @@ const Scoreboard = ({
           </div>
 
           <div className={classes.mTimeOuts}>
-            <p>Fouls: {timeOutsB}</p>
+            <p>Timeouts: {timeOutsB}</p>
             <div className="foul-icons">
               {[...Array(timeOutsB)].map((_, index) => (
                 <div key={index} className="foul-icon"></div>
