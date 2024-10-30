@@ -1,8 +1,9 @@
 // pages/api/updateScore.js
 import { createClient } from "contentful-management";
+const { C_CMA_KEY, C_SPACE_ID } = require("../../helpers/contentful-config");
 
 const client = createClient({
-  accessToken: process.env.CONTENTFUL_MANAGEMENT_ACCESS_TOKEN,
+  accessToken: C_CMA_KEY,
 });
 
 export default async function handler(req, res) {
@@ -13,9 +14,7 @@ export default async function handler(req, res) {
   const { entryId, team, newScore } = req.body;
 
   try {
-    const space = await client.getSpace(
-      process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID
-    );
+    const space = await client.getSpace(C_SPACE_ID);
     const environment = await space.getEnvironment("master"); // Adjust if you're using a different environment
     const entry = await environment.getEntry(entryId);
 
