@@ -14,15 +14,17 @@ const Scoreboard = ({
 }) => {
   const [scoreA, setScoreA] = useState(initialScoreA);
   const [scoreB, setScoreB] = useState(initialScoreB);
-  const [time, setTime] = useState(5 * 60 * 1000); // Default time: 5 minutes (in milliseconds)
+  const [time, setTime] = useState(12 * 60 * 1000);
   const [isRunning, setIsRunning] = useState(false);
   const [possession, setPossession] = useState("A");
-  const [foulsA, setFoulsA] = useState(0); // State for Team A fouls
-  const [foulsB, setFoulsB] = useState(0); // State for Team B fouls
+  const [foulsA, setFoulsA] = useState(0);
+  const [foulsB, setFoulsB] = useState(0);
+  const [timeOutsA, setTimeOutsA] = useState(0);
+  const [timeOutsB, setTimeOutsB] = useState(0);
 
   // Input fields for setting time
-  const [inputMinutes, setInputMinutes] = useState(5); // Default 5 minutes
-  const [inputSeconds, setInputSeconds] = useState(0); // Default 0 seconds
+  const [inputMinutes, setInputMinutes] = useState(12);
+  const [inputSeconds, setInputSeconds] = useState(0);
 
   useEffect(() => {
     let timer;
@@ -124,7 +126,6 @@ const Scoreboard = ({
         <button onClick={startCountdown}>Start</button>
         <button onClick={stopCountdown}>Stop</button>
         <button onClick={resetCountdown}>Reset</button>
-
         <div className="time-inputs">
           <label>
             Minutes:
@@ -175,6 +176,24 @@ const Scoreboard = ({
             </button>
             <button onClick={() => setFoulsA(0)}>Reset Fouls</button>
           </div>
+
+          <div className="timeOuts">
+            <p>Fouls: {timeOutsA}</p>
+            <div className="foul-icons">
+              {[...Array(timeOutsA)].map((_, index) => (
+                <div key={index} className="foul-icon"></div>
+              ))}
+            </div>
+            <button
+              onClick={() => timeOutsA < 5 && setTimeOutsA(timeOutsA + 1)}
+            >
+              +1 Timeout
+            </button>
+            <button onClick={() => setTimeOutsA(Math.max(0, timeOutsA - 1))}>
+              -1 Timeout
+            </button>
+            <button onClick={() => setTimeOutsA(0)}>Reset Timeouts</button>
+          </div>
         </div>
         <div className="team">
           <h2>
@@ -196,6 +215,24 @@ const Scoreboard = ({
               +1 Foul
             </button>
             <button onClick={() => setFoulsB(0)}>Reset Fouls</button>
+          </div>
+
+          <div className="timeOuts">
+            <p>Fouls: {timeOutsB}</p>
+            <div className="foul-icons">
+              {[...Array(timeOutsB)].map((_, index) => (
+                <div key={index} className="foul-icon"></div>
+              ))}
+            </div>
+            <button
+              onClick={() => timeOutsB < 5 && setTimeOutsB(timeOutsB + 1)}
+            >
+              +1 Timeout
+            </button>
+            <button onClick={() => setTimeOutsB(Math.max(0, timeOutsB - 1))}>
+              -1 Timeout
+            </button>
+            <button onClick={() => setTimeOutsB(0)}>Reset Timeouts</button>
           </div>
         </div>
       </div>

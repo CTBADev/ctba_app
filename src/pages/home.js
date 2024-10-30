@@ -34,9 +34,6 @@ export async function getStaticProps() {
 
 export default function Home({ homepage }) {
   const { title } = homepage.homepageCollection.items[0];
-
-  console.log(title);
-
   return (
     <div className="anchor" id="top">
       <h1>{title}</h1>
