@@ -16,6 +16,9 @@ const Scoreboard = ({
   const [scoreB, setScoreB] = useState(initialScoreB);
   const [time, setTime] = useState(5 * 60 * 1000); // Default time: 5 minutes (in milliseconds)
   const [isRunning, setIsRunning] = useState(false);
+  const [possession, setPossession] = useState("A");
+  const [foulsA, setFoulsA] = useState(0); // State for Team A fouls
+  const [foulsB, setFoulsB] = useState(0); // State for Team B fouls
 
   // Input fields for setting time
   const [inputMinutes, setInputMinutes] = useState(5); // Default 5 minutes
@@ -77,6 +80,10 @@ const Scoreboard = ({
     };
   }, []);
 
+  const togglePossession = () => {
+    setPossession((prevPossession) => (prevPossession === "A" ? "B" : "A"));
+  };
+
   // Function to update score locally, emit it over Socket.io, and persist in Contentful
   const updateScore = async (team, newScore) => {
     if (team === "A") setScoreA(newScore);
@@ -102,6 +109,12 @@ const Scoreboard = ({
   return (
     <div className="scoreboard">
       <h1>Basketball Scoreboard</h1>
+      <div className="possession-arrow">
+        <button onClick={togglePossession} className="arrow-button">
+          Toggle Possession
+        </button>
+        <p>Possession: {possession === "A" ? initialTeamA : initialTeamB}</p>
+      </div>
       <div className="countdown">
         <h3>Countdown</h3>
         <p>{`${String(minutes).padStart(2, "0")}:${String(seconds).padStart(
@@ -137,7 +150,9 @@ const Scoreboard = ({
       </div>
       <div className="teams">
         <div className="team">
-          <h2>{initialTeamA}</h2>
+          <h2>
+            {initialTeamA} {possession === "A" && "←"}
+          </h2>
           <p>Score: {scoreA}</p>
           <button onClick={() => updateScore("A", scoreA + 3)}>+3</button>
           <button onClick={() => updateScore("A", scoreA + 2)}>+2</button>
@@ -145,14 +160,43 @@ const Scoreboard = ({
           <button onClick={() => updateScore("A", Math.max(0, scoreA - 1))}>
             -1
           </button>
+          <div className="fouls">
+            <p>Fouls: {foulsA}</p>
+            <div className="foul-icons">
+              {[...Array(foulsA)].map((_, index) => (
+                <div key={index} className="foul-icon"></div>
+              ))}
+            </div>
+            <button onClick={() => foulsA < 5 && setFoulsA(foulsA + 1)}>
+              +1 Foul
+            </button>
+            <button onClick={() => setFoulsA(Math.max(0, foulsA - 1))}>
+              -1 Foul
+            </button>
+            <button onClick={() => setFoulsA(0)}>Reset Fouls</button>
+          </div>
         </div>
         <div className="team">
-          <h2>{initialTeamB}</h2>
+          <h2>
+            {initialTeamB} {possession === "B" && "←"}
+          </h2>
           <p>Score: {scoreB}</p>
           <button onClick={() => updateScore("B", scoreB + 1)}>+1</button>
           <button onClick={() => updateScore("B", Math.max(0, scoreB - 1))}>
             -1
           </button>
+          <div className="fouls">
+            <p>Fouls: {foulsB}</p>
+            <div className="foul-icons">
+              {[...Array(foulsB)].map((_, index) => (
+                <div key={index} className="foul-icon"></div>
+              ))}
+            </div>
+            <button onClick={() => foulsB < 5 && setFoulsB(foulsB + 1)}>
+              +1 Foul
+            </button>
+            <button onClick={() => setFoulsB(0)}>Reset Fouls</button>
+          </div>
         </div>
       </div>
       <div className="status">
@@ -166,6 +210,50 @@ const Scoreboard = ({
           border: 2px solid #000;
           border-radius: 10px;
           background-color: #f5f5f5;
+        }
+
+        .possession-arrow {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 20px;
+        }
+        .arrow-button {
+          padding: 8px 12px;
+          background-color: #0070f3;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+        }
+        .fouls {
+          margin-top: 10px;
+        }
+        .fouls p {
+          font-weight: bold;
+        }
+
+        .foul-icons {
+          display: flex;
+          gap: 5px;
+          margin-top: 5px;
+        }
+        .foul-icon {
+          width: 15px;
+          height: 15px;
+          background-color: red;
+          border-radius: 50%;
+        }
+
+        .fouls button {
+          margin: 5px;
+          padding: 5px 10px;
+          background-color: #f44336;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
         }
         .teams {
           display: flex;
