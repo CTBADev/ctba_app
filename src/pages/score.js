@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getAllGames } from "../../lib/contentful";
-import Scoreboard from "../components/organisms/scoreboard2/Scoreboard";
+import Scoreboard from "../components/organisms/scoreboard/Scoreboard";
 
 const GameScore = () => {
   const [games, setGames] = useState([]);
