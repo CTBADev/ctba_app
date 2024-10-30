@@ -111,12 +111,7 @@ const Scoreboard = ({
   return (
     <div className="scoreboard">
       <h1>Basketball Scoreboard</h1>
-      <div className="possession-arrow">
-        <button onClick={togglePossession} className="arrow-button">
-          Toggle Possession
-        </button>
-        <p>Possession: {possession === "A" ? initialTeamA : initialTeamB}</p>
-      </div>
+
       <div className="countdown">
         <h3>Countdown</h3>
         <p>{`${String(minutes).padStart(2, "0")}:${String(seconds).padStart(
@@ -237,6 +232,12 @@ const Scoreboard = ({
             <button onClick={() => setTimeOutsB(0)}>Reset Timeouts</button>
           </div>
         </div>
+      </div>
+      <div className="possession-arrow">
+        <button onClick={togglePossession} className="arrow-button">
+          Toggle Possession
+        </button>
+        <p>Possession: {possession === "A" ? initialTeamA : initialTeamB}</p>
       </div>
       <div className="status">
         <p>Status: {status}</p>
