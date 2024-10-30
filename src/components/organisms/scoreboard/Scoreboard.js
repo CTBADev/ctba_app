@@ -1,6 +1,7 @@
 // components/Scoreboard.js
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
+import classes from "./Scoreboard.module.scss";
 
 let socket;
 
@@ -109,60 +110,84 @@ const Scoreboard = ({
   };
 
   return (
-    <div className="scoreboard">
-      <h1>Basketball Scoreboard</h1>
+    <div className={classes.oScoreBoard}>
+      <h2 className={`${classes.aTitle} fntH2`}>Basketball Scoreboard</h2>
 
       <div className="countdown">
-        <h3>Countdown</h3>
-        <p>{`${String(minutes).padStart(2, "0")}:${String(seconds).padStart(
-          2,
-          "0"
-        )}:${String(milliseconds).padStart(2, "0")}`}</p>
-        <button onClick={startCountdown}>Start</button>
-        <button onClick={stopCountdown}>Stop</button>
-        <button onClick={resetCountdown}>Reset</button>
-        <div className="time-inputs">
-          <label>
-            Minutes:
-            <input
-              type="number"
-              min="0"
-              value={inputMinutes}
-              onChange={(e) => setInputMinutes(Number(e.target.value))}
-            />
-          </label>
-          <label>
-            Seconds:
-            <input
-              type="number"
-              min="0"
-              max="59"
-              value={inputSeconds}
-              onChange={(e) => setInputSeconds(Number(e.target.value))}
-            />
-          </label>
-          <button onClick={updateTime}>Set Time</button>
+        <div className={`${classes.oClock}`}>
+          <span className={`${classes.mClock} fnt150`}>{`${String(
+            minutes
+          ).padStart(2, "0")}:${String(seconds).padStart(2, "0")}:${String(
+            milliseconds
+          ).padStart(2, "0")}`}</span>
+          <div className={classes.mCtaRegion}>
+            <button
+              onClick={() => {
+                if (isRunning) {
+                  stopCountdown();
+                } else {
+                  startCountdown();
+                }
+              }}
+              className={`${classes.aBtn} ${
+                isRunning ? classes.isOn : classes.isOff
+              }`}
+            >
+              {isRunning ? "Stop" : "Start"}
+            </button>
+            <button onClick={resetCountdown} className={`${classes.aBtn} `}>
+              Reset
+            </button>
+            <div className={classes.mClockEdit}>
+              <label>
+                Minutes:
+                <input
+                  type="number"
+                  min="0"
+                  value={inputMinutes}
+                  onChange={(e) => setInputMinutes(Number(e.target.value))}
+                />
+              </label>
+              <label>
+                Seconds:
+                <input
+                  type="number"
+                  min="0"
+                  max="59"
+                  value={inputSeconds}
+                  onChange={(e) => setInputSeconds(Number(e.target.value))}
+                />
+              </label>
+              <button onClick={updateTime}>Set Time</button>
+            </div>
+          </div>
         </div>
       </div>
-      <div className="teams">
-        <div className="team">
+      <div className={`${classes.oTeams}`}>
+        <div className={`${classes.oTeam} ${classes.teamA}`}>
           <h2>
             {initialTeamA} {possession === "A" && "←"}
           </h2>
-          <p>Score: {scoreA}</p>
+
+          <div className={classes.oTeamData}>
+            <p className={`${classes.aScore} fnt150`}>{scoreA}</p>
+            <div className={classes.oTeamFouls}>
+              <div className={classes.oFoulIcons}>
+                {[...Array(foulsA)].map((_, index) => (
+                  <div key={index} className={classes.aFoulIcon}></div>
+                ))}
+              </div>
+            </div>
+          </div>
+
           <button onClick={() => updateScore("A", scoreA + 3)}>+3</button>
           <button onClick={() => updateScore("A", scoreA + 2)}>+2</button>
           <button onClick={() => updateScore("A", scoreA + 1)}>+1</button>
           <button onClick={() => updateScore("A", Math.max(0, scoreA - 1))}>
             -1
           </button>
-          <div className="fouls">
-            <p>Fouls: {foulsA}</p>
-            <div className="foul-icons">
-              {[...Array(foulsA)].map((_, index) => (
-                <div key={index} className="foul-icon"></div>
-              ))}
-            </div>
+
+          <div className={classes.oTeamControls}>
             <button onClick={() => foulsA < 5 && setFoulsA(foulsA + 1)}>
               +1 Foul
             </button>
@@ -190,26 +215,32 @@ const Scoreboard = ({
             <button onClick={() => setTimeOutsA(0)}>Reset Timeouts</button>
           </div>
         </div>
-        <div className="team">
+        <div className={`${classes.oTeam} ${classes.teamB}`}>
           <h2>
             {initialTeamB} {possession === "B" && "←"}
           </h2>
-          <p>Score: {scoreB}</p>
+          <div className={classes.oTeamData}>
+            <p className={`${classes.aScore} fnt150`}>{scoreB}</p>
+            <div className={classes.oTeamFouls}>
+              <div className={classes.oFoulIcons}>
+                {[...Array(foulsB)].map((_, index) => (
+                  <div key={index} className={classes.aFoulIcon}></div>
+                ))}
+              </div>
+            </div>
+          </div>
           <button onClick={() => updateScore("B", scoreB + 3)}>+3</button>
           <button onClick={() => updateScore("B", scoreB + 2)}>+2</button>
           <button onClick={() => updateScore("B", scoreB + 1)}>+1</button>
           <button onClick={() => updateScore("B", Math.max(0, scoreB - 1))}>
             -1
           </button>
-          <div className="fouls">
-            <p>Fouls: {foulsB}</p>
-            <div className="foul-icons">
-              {[...Array(foulsB)].map((_, index) => (
-                <div key={index} className="foul-icon"></div>
-              ))}
-            </div>
+          <div className={classes.oTeamControls}>
             <button onClick={() => foulsB < 5 && setFoulsB(foulsB + 1)}>
               +1 Foul
+            </button>
+            <button onClick={() => setFoulsB(Math.max(0, foulsB - 1))}>
+              -1 Foul
             </button>
             <button onClick={() => setFoulsB(0)}>Reset Fouls</button>
           </div>
@@ -244,12 +275,6 @@ const Scoreboard = ({
       </div>
       <style jsx>{`
         .scoreboard {
-          text-align: center;
-          margin: 20px;
-          padding: 20px;
-          border: 2px solid #000;
-          border-radius: 10px;
-          background-color: #f5f5f5;
         }
 
         .possession-arrow {
@@ -274,18 +299,6 @@ const Scoreboard = ({
           font-weight: bold;
         }
 
-        .foul-icons {
-          display: flex;
-          gap: 5px;
-          margin-top: 5px;
-        }
-        .foul-icon {
-          width: 15px;
-          height: 15px;
-          background-color: red;
-          border-radius: 50%;
-        }
-
         .fouls button {
           margin: 5px;
           padding: 5px 10px;
@@ -295,13 +308,7 @@ const Scoreboard = ({
           border-radius: 5px;
           cursor: pointer;
         }
-        .teams {
-          display: flex;
-          justify-content: space-around;
-        }
-        .team {
-          padding: 10px;
-        }
+
         .status {
           margin-top: 10px;
         }
@@ -327,7 +334,6 @@ const Scoreboard = ({
           font-size: 1rem;
           border-radius: 5px;
           border: none;
-          background-color: #0070f3;
           color: white;
           cursor: pointer;
         }

@@ -1,0 +1,128 @@
+// COMPONENT [ BURGER MENU ] ##########################################################################################
+
+@import "../../../scss/.base/_module-index";
+
+// A.1. COMPONENT STYLE -----------------------------------
+
+.oScoreBoard {
+  text-align: center;
+  margin: 20px;
+  padding: 20px;
+  border: 2px solid #000;
+  border-radius: 10px;
+  background-color: #f5f5f5;
+}
+
+.oTeams {
+  display: flex;
+  justify-content: space-around;
+}
+
+.oTeam {
+  padding: 10px;
+  .oTeamData {
+    position: relative;
+    .oTeamFouls {
+      position: absolute;
+      bottom: 0;
+    }
+  }
+  &.teamA {
+    .oTeamData {
+      .oTeamFouls {
+        left: 0;
+      }
+    }
+  }
+  &.teamB {
+    .oTeamData {
+      .oTeamFouls {
+        right: 0;
+      }
+    }
+  }
+}
+
+.mClockEdit {
+  display: none;
+}
+
+.mClock {
+  display: inline-block;
+  background-color: black;
+  margin: 0 auto;
+  border-radius: 15px;
+  color: white;
+  padding: 20px;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.aBtn {
+  &.isOn {
+    background-color: orange;
+  }
+  &.isOff {
+    background-color: blue;
+  }
+}
+
+.oFoulIcons {
+  display: flex;
+  gap: 5px;
+  margin-top: 5px;
+  flex-direction: column-reverse;
+}
+.aFoulIcon {
+  width: 15px;
+  height: 15px;
+  background-color: rgb(215, 215, 43);
+  border-radius: 50%;
+  &:nth-child(n + 5) {
+    background-color: red;
+  }
+}
+
+// A.1. END -----------------------------------------------
+
+// B. MEDIA QUERIES ---------------------------------------
+
+// B.1. GRACEFUL DEGRADATION ---------------
+
+@media ($md-dn) {
+}
+
+@media ($xs-dn) {
+}
+
+// B.1. END --------------------------------
+
+// B.2. PROGRESSIVE ENHANCEMENT ------------
+// 576px up
+@media ($sm-up) {
+}
+
+// 768px up
+@media ($md-up) {
+}
+
+// 992px up
+@media ($lg-up) {
+}
+
+// 1200px up
+@media ($xl-up) {
+}
+
+// 1400px up
+@media ($xxl-up) {
+}
+
+// 1920px up
+@media ($hd-up) {
+}
+
+// B.2. END --------------------------------
+
+// B. END -------------------------------------------------
+
+// END OF FILE ########################################################################################################
