@@ -200,6 +200,8 @@ const Scoreboard = ({
             {initialTeamB} {possession === "B" && "←"}
           </h2>
           <p>Score: {scoreB}</p>
+          <button onClick={() => updateScore("B", scoreB + 3)}>+3</button>
+          <button onClick={() => updateScore("B", scoreB + 2)}>+2</button>
           <button onClick={() => updateScore("B", scoreB + 1)}>+1</button>
           <button onClick={() => updateScore("B", Math.max(0, scoreB - 1))}>
             -1
