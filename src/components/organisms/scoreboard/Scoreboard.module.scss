@@ -22,32 +22,40 @@
 .oTeam {
   flex: 3 3 45%;
   padding: 10px;
-  .oTeamData {
+  .aScore {
+    display: inline-block;
+    font-family: $courierCB;
+    letter-spacing: -5px;
+  }
+  .mTeamData {
     position: relative;
-    .oTeamFouls {
+    display: inline-flex;
+    .mTeamFouls {
       position: absolute;
-      bottom: 0;
+      bottom: 2rem;
     }
   }
   &.teamA {
-    .oTeamData {
-      .oTeamFouls {
-        left: 0;
+    .mTeamData {
+      .mTeamFouls {
+        right: -8%;
       }
     }
   }
   &.teamB {
-    .oTeamData {
-      .oTeamFouls {
-        right: 0;
+    .mTeamData {
+      .mTeamFouls {
+        left: -8%;
       }
     }
   }
 }
 
-.oPossessionArrow {
+.oGameData {
   flex: 1 1 10%;
   .mPossessionArrow {
+    max-width: 50px;
+    margin: 0 auto;
     transform-origin: center center;
     svg {
       path {
@@ -88,12 +96,38 @@
   }
 }
 
-.oFoulIcons {
+.oGamePeriods {
+  position: relative;
+  .mGamePeriods {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+    margin: 30px auto 5px;
+    justify-content: center;
+    .aGamePeriod {
+      width: 15px;
+      height: 15px;
+      background-color: white;
+      box-shadow: 0 0 5px black;
+      border-radius: 50%;
+      &:nth-child(n + 5) {
+        background-color: red;
+      }
+    }
+  }
+  p {
+    display: block;
+  }
+}
+
+.mFoulIcons {
   display: flex;
   gap: 5px;
   margin-top: 5px;
   flex-direction: column-reverse;
 }
+
+.aGamePeriod,
 .aFoulIcon {
   width: 15px;
   height: 15px;
