@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getAllGames } from "../../lib/contentful";
 import Scoreboard from "../components/organisms/scoreboard/Scoreboard";
+import Link from "next/link";
 
 const GameScore = () => {
   const [games, setGames] = useState([]);
@@ -29,6 +30,7 @@ const GameScore = () => {
             initialTeamB={selectedGame.teamB}
             initialScoreA={selectedGame.scoreA}
             initialScoreB={selectedGame.scoreB}
+            scoresheet={selectedGame.scoreSheet}
             status={selectedGame.status}
           />
           <button onClick={() => setSelectedGame(null)}>back to list</button>
@@ -44,9 +46,23 @@ const GameScore = () => {
               <p>
                 Score: {game.scoreA} - {game.scoreB}
               </p>
-              <button onClick={() => handleSelectGame(game)}>
-                Update Score
-              </button>
+              <>
+                {" "}
+                {game.scoreSheet && (
+                  <p>
+                    <Link href={`http:${game.scoreSheet}`} target="_blank">
+                      scoresheet uploaded
+                    </Link>
+                  </p>
+                )}
+              </>
+              <>
+                {!game.isLocked && (
+                  <button onClick={() => handleSelectGame(game)}>
+                    Update Score
+                  </button>
+                )}
+              </>
             </div>
           ))}
         </div>

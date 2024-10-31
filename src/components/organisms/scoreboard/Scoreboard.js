@@ -1,6 +1,15 @@
 // components/Scoreboard.js
 import React, { useEffect, useState } from "react";
 import classes from "./Scoreboard.module.scss";
+import { createClient } from "contentful-management";
+import ImageUpload from "../imageUpload/ImageUpload";
+import Link from "next/link";
+
+const { C_SPACE_ID, C_CMA_KEY } = require("../../../helpers/contentful-config");
+
+const contentfulClient = createClient({
+  accessToken: C_CMA_KEY,
+});
 
 const Scoreboard = ({
   entryId,
@@ -8,7 +17,7 @@ const Scoreboard = ({
   initialTeamB,
   initialScoreA,
   initialScoreB,
-  status,
+  scoresheet,
 }) => {
   const [scoreA, setScoreA] = useState(initialScoreA);
   const [scoreB, setScoreB] = useState(initialScoreB);
@@ -20,10 +29,17 @@ const Scoreboard = ({
   const [timeOutsA, setTimeOutsA] = useState(0);
   const [timeOutsB, setTimeOutsB] = useState(0);
   const [gamePeriods, setGamePeriods] = useState(1);
-
-  // Input fields for setting time
+  const [imageUrl, setImageUrl] = useState("");
   const [inputMinutes, setInputMinutes] = useState(12);
   const [inputSeconds, setInputSeconds] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Set initial image URL from scoresheet prop
+  useEffect(() => {
+    if (scoresheet?.fields?.file?.url) {
+      setImageUrl(`https:${scoresheet.fields.file.url}`);
+    }
+  }, [scoresheet]);
 
   useEffect(() => {
     let timer;
@@ -86,6 +102,73 @@ const Scoreboard = ({
       }),
     });
   };
+  const handleImageUpload = async (file) => {
+    try {
+      setImageUrl(null); // Clear any existing image
+      setIsLoading(true);
+      const space = await contentfulClient.getSpace(C_SPACE_ID);
+      const environment = await space.getEnvironment("master");
+
+      // Step 1: Create an asset with the uploaded file
+      let asset = await environment.createAssetFromFiles({
+        fields: {
+          title: {
+            "en-US": file.name,
+          },
+          file: {
+            "en-US": {
+              contentType: file.type,
+              fileName: file.name,
+              file: file,
+            },
+          },
+        },
+      });
+
+      // Step 2: Process the asset to prepare it for publishing
+      await asset.processForAllLocales();
+
+      // Step 3: Wait for processing to complete and refetch the latest version
+      let isProcessed = false;
+      while (!isProcessed) {
+        asset = await environment.getAsset(asset.sys.id);
+        isProcessed = asset.fields.file["en-US"].url ? true : false;
+        if (!isProcessed) {
+          await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second before checking again
+        }
+      }
+
+      // Step 4: Publish the asset
+      const publishedAsset = await asset.publish();
+
+      // Step 5: Retrieve and update the game entry with a link to the uploaded asset
+      let entry = await environment.getEntry(entryId);
+      entry.fields.scoresheet = {
+        "en-US": {
+          sys: {
+            type: "Link",
+            linkType: "Asset",
+            id: publishedAsset.sys.id, // Link the uploaded asset ID here
+          },
+        },
+      };
+
+      // Update and wait for changes to propagate
+      entry = await entry.update();
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Get a fresh version before publishing
+      entry = await environment.getEntry(entry.sys.id);
+      await entry.publish();
+
+      // Set the image URL for display in the component
+      setImageUrl(`https:${publishedAsset.fields.file["en-US"].url}`);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      setIsLoading(false);
+    }
+  };
 
   return (
     <>
@@ -99,24 +182,19 @@ const Scoreboard = ({
             ).padStart(2, "0")}`}</span>
           </div>
         </div>
-
-        <div className={classes.mGamePeriods}>
-          <p>PERIOD: {gamePeriods}</p>
-          <div className="foul-icons">
-            {[...Array(gamePeriods)].map((_, index) => (
-              <div key={index} className="foul-icon"></div>
-            ))}
-          </div>
-        </div>
         <div className={`${classes.oTeams}`}>
           <div className={`${classes.oTeam} ${classes.teamA}`}>
             <div className={classes.oTeamData}>
-              <p className={`${classes.aScore} fnt150`}>{scoreA}</p>
-              <div className={classes.oTeamFouls}>
-                <div className={classes.oFoulIcons}>
-                  {[...Array(foulsA)].map((_, index) => (
-                    <div key={index} className={classes.aFoulIcon}></div>
-                  ))}
+              <div className={`${classes.mTeamData}`}>
+                <p className={`${classes.aScore} fnt150`}>
+                  {String(scoreA).padStart(3, "0")}
+                </p>
+                <div className={classes.mTeamFouls}>
+                  <div className={classes.mFoulIcons}>
+                    {[...Array(foulsA)].map((_, index) => (
+                      <div key={index} className={classes.aFoulIcon}></div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -130,7 +208,7 @@ const Scoreboard = ({
               </div>
             </div>
           </div>
-          <div className={classes.oPossessionArrow}>
+          <div className={classes.oGameData}>
             <figure
               className={`${classes.mPossessionArrow} ${
                 possession === "A" ? classes.teamA : classes.teamB
@@ -143,20 +221,32 @@ const Scoreboard = ({
               >
                 <path d="M26.1,97.3l.9-94.6,46.9,46.9-47.8,47.8Z" />
               </svg>
+              <span>POS</span>
             </figure>
+            <div className={classes.oGamePeriods}>
+              <div className={classes.mGamePeriods}>
+                {[...Array(gamePeriods)].map((_, index) => (
+                  <div key={index} className={classes.aGamePeriod}></div>
+                ))}
+              </div>
+              <p>QTR</p>
+            </div>
           </div>
           <div className={`${classes.oTeam} ${classes.teamB}`}>
             <div className={classes.oTeamData}>
-              <p className={`${classes.aScore} fnt150`}>{scoreB}</p>
-
-              <div className={classes.oTeamFouls}>
-                <div className={classes.oFoulIcons}>
-                  {[...Array(foulsB)].map((_, index) => (
-                    <div key={index} className={classes.aFoulIcon}></div>
-                  ))}
+              <div className={`${classes.mTeamData}`}>
+                <p className={`${classes.aScore} fnt150`}>
+                  {String(scoreB).padStart(3, "0")}
+                </p>
+                <div className={classes.mTeamFouls}>
+                  <div className={classes.mFoulIcons}>
+                    {[...Array(foulsB)].map((_, index) => (
+                      <div key={index} className={classes.aFoulIcon}></div>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>{" "}
+            </div>
             <h2>{initialTeamB}</h2>
             <div className={classes.mTimeOuts}>
               <p>Timeouts: {timeOutsB}</p>
@@ -168,10 +258,6 @@ const Scoreboard = ({
             </div>
           </div>
         </div>
-
-        {/* <div className="status">
-          <p>Status: {status}</p>
-        </div> */}
         <style jsx>{`
           .arrow-button {
             padding: 8px 12px;
@@ -190,10 +276,6 @@ const Scoreboard = ({
             border: none;
             border-radius: 5px;
             cursor: pointer;
-          }
-
-          .status {
-            margin-top: 10px;
           }
           button {
             margin: 5px;
@@ -374,6 +456,26 @@ const Scoreboard = ({
               </button>
               <button onClick={() => setTimeOutsB(0)}>Reset Timeouts</button>
             </div>
+          </div>
+          <div className={`${classes.oColStatsTeamB} col`}>
+            {scoresheet ? (
+              <p>
+                <Link href={`http:${scoresheet}`} target="_blank">
+                  scoresheet uploaded
+                </Link>
+              </p>
+            ) : (
+              <>
+                <ImageUpload onUpload={handleImageUpload} />
+                {isLoading ? (
+                  <p>uploading</p>
+                ) : (
+                  <>
+                    <img src={imageUrl} width="20" height="20" />
+                  </>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>

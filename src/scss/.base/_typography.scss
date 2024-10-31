@@ -22,6 +22,13 @@ $garetHeavy: "Garet-Heavy", sans-serif;
   src: url("../../fonts/garet/Garet-Book.woff") format("woff");
 }
 
+@font-face {
+  font-family: "Courier Condensed Bold";
+  src: url("../../fonts/CourierCondensedBold.ttf") format("truetype");
+}
+
+$courierCB: "Courier Condensed Bold", sans-serif, courier, monospace;
+
 $garet: "Garet", sans-serif;
 
 // A.2. RESPONSIVE FONT VARIABLES -------------------------
