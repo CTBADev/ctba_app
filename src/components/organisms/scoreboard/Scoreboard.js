@@ -173,7 +173,7 @@ const Scoreboard = ({
   return (
     <>
       <div className={classes.oScoreBoard}>
-        <div className="countdown">
+        <div className={classes.oTime}>
           <div className={`${classes.oClock}`}>
             <span className={`${classes.mClock} fnt150`}>{`${String(
               minutes
@@ -258,83 +258,46 @@ const Scoreboard = ({
             </div>
           </div>
         </div>
-        <style jsx>{`
-          .arrow-button {
-            padding: 8px 12px;
-            background-color: #0070f3;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-          }
-
-          .fouls button {
-            margin: 5px;
-            padding: 5px 10px;
-            background-color: #f44336;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-          }
-          button {
-            margin: 5px;
-            padding: 10px;
-            background-color: #0070f3;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-          }
-          .countdown {
-            margin-top: 20px;
-          }
-          .countdown p {
-            font-size: 2rem;
-            margin: 10px 0;
-          }
-          .countdown button {
-            margin: 5px;
-            padding: 10px;
-            font-size: 1rem;
-            border-radius: 5px;
-            border: none;
-            color: white;
-            cursor: pointer;
-          }
-          .countdown button:disabled {
-            background-color: #aaa;
-          }
-          .time-inputs {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-          }
-          .time-inputs label {
-            display: flex;
-            flex-direction: column;
-            font-size: 1rem;
-          }
-          .time-inputs input {
-            width: 60px;
-            padding: 5px;
-            font-size: 1rem;
-            text-align: center;
-          }
-        `}</style>
       </div>
       <div className={`${classes.oContainer} container`}>
         <div className={`${classes.oRow} row`}>
           <div className={`${classes.oColStatsTeamA} col`}>
-            <div className={`${classes.mGameScore}`}>
+            <div className={`${classes.oGameScore}`}>
               <h4>ATTEMPTS</h4>
-              <button onClick={() => updateScore("A", scoreA + 3)}>+3</button>
-              <button onClick={() => updateScore("A", scoreA + 2)}>+2</button>
-              <button onClick={() => updateScore("A", scoreA + 1)}>+1</button>
-              <button onClick={() => updateScore("A", Math.max(0, scoreA - 1))}>
-                -1
-              </button>
-              <button onClick={() => setScoreA(0)}>Reset Score</button>
+              <div className={`${classes.mScorePoints}`}>
+                <button
+                  className={`aBtn ${classes.pt3}`}
+                  onClick={() => updateScore("A", scoreA + 3)}
+                >
+                  +3
+                </button>
+                <button
+                  className={`aBtn ${classes.pt2}`}
+                  onClick={() => updateScore("A", scoreA + 2)}
+                >
+                  +2
+                </button>
+                <button
+                  className={`aBtn ${classes.pt1}`}
+                  onClick={() => updateScore("A", scoreA + 1)}
+                >
+                  +1
+                </button>
+              </div>
+              <div className={`${classes.mScorePoints}`}>
+                <button
+                  className={`aBtn btnSmall ${classes.adjust}`}
+                  onClick={() => updateScore("A", Math.max(0, scoreA - 1))}
+                >
+                  -1
+                </button>
+                <button
+                  className={`aBtn btnSmall ${classes.reset}`}
+                  onClick={() => setScoreA(0)}
+                >
+                  Reset Score
+                </button>
+              </div>
             </div>
             <div className={`${classes.mTeamFouls}`}>
               <h4>TEAM FOULS</h4>
@@ -424,15 +387,42 @@ const Scoreboard = ({
             </button>
           </div>
           <div className={`${classes.oColStatsTeamB} col`}>
-            <div className={`${classes.mGameScore}`}>
+            <div className={`${classes.oGameScore}`}>
               <h4>ATTEMPTS</h4>
-              <button onClick={() => updateScore("B", scoreB + 3)}>+3</button>
-              <button onClick={() => updateScore("B", scoreB + 2)}>+2</button>
-              <button onClick={() => updateScore("B", scoreB + 1)}>+1</button>
-              <button onClick={() => updateScore("B", Math.max(0, scoreB - 1))}>
-                -1
-              </button>
-              <button onClick={() => setScoreB(0)}>Reset Score</button>
+              <div className={`${classes.mScorePoints}`}>
+                <button
+                  className={`aBtn ${classes.pt3}`}
+                  onClick={() => updateScore("B", scoreB + 3)}
+                >
+                  +3
+                </button>
+                <button
+                  className={`aBtn ${classes.pt2}`}
+                  onClick={() => updateScore("B", scoreB + 2)}
+                >
+                  +2
+                </button>
+                <button
+                  className={`aBtn ${classes.pt1}`}
+                  onClick={() => updateScore("B", scoreB + 1)}
+                >
+                  +1
+                </button>
+              </div>
+              <div className={`${classes.mScorePoints}`}>
+                <button
+                  className={`aBtn btnSmall ${classes.adjust}`}
+                  onClick={() => updateScore("B", Math.max(0, scoreB - 1))}
+                >
+                  -1
+                </button>
+                <button
+                  className={`aBtn btnSmall ${classes.reset}`}
+                  onClick={() => setScoreB(0)}
+                >
+                  Reset Score
+                </button>
+              </div>
             </div>
             <div className={`${classes.mTeamFouls}`}>
               <h4>TEAM FOULS</h4>

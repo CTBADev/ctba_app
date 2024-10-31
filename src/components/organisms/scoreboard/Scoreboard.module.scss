@@ -10,7 +10,8 @@
   padding: 20px;
   border: 2px solid #000;
   border-radius: 10px;
-  background-color: #f5f5f5;
+  background-color: #5d5959;
+  color: white;
 }
 
 .oTeams {
@@ -59,7 +60,7 @@
     transform-origin: center center;
     svg {
       path {
-        fill: red;
+        fill: yellow;
       }
     }
     &.teamA {
@@ -120,6 +121,20 @@
   }
 }
 
+.oGameScore {
+  background-color: #e4e4e4;
+  text-align: center;
+  border-radius: 20px;
+  padding: 15px;
+  justify-content: center;
+  .mScorePoints {
+    display: flex;
+    gap: 10px;
+    max-width: 180px;
+    margin: 5px auto 10px;
+  }
+}
+
 .mFoulIcons {
   display: flex;
   gap: 5px;
@@ -131,7 +146,7 @@
 .aFoulIcon {
   width: 15px;
   height: 15px;
-  background-color: rgb(215, 215, 43);
+  background-color: yellow;
   border-radius: 50%;
   &:nth-child(n + 5) {
     background-color: red;
