@@ -16,9 +16,11 @@
 .oTeams {
   display: flex;
   justify-content: space-around;
+  align-items: center;
 }
 
 .oTeam {
+  flex: 3 3 45%;
   padding: 10px;
   .oTeamData {
     position: relative;
@@ -39,6 +41,26 @@
       .oTeamFouls {
         right: 0;
       }
+    }
+  }
+}
+
+.oPossessionArrow {
+  flex: 1 1 10%;
+  .mPossessionArrow {
+    transform-origin: center center;
+    svg {
+      path {
+        fill: red;
+      }
+    }
+    &.teamA {
+      transform: rotate(0);
+      transition: 0.3s;
+    }
+    &.teamB {
+      transform: rotate(180deg);
+      transition: 0.3s;
     }
   }
 }
@@ -85,6 +107,8 @@
 .aScore {
   position: relative;
   z-index: 0;
+  display: block;
+  overflow: hidden;
 }
 
 // A.1. END -----------------------------------------------
