@@ -25,8 +25,8 @@ export default async function handler(req, res) {
       entry.fields.scoreB["en-US"] = newScore;
     }
 
-    await entry.update();
-    await entry.publish(); // Publish the entry to make changes live
+    const updatedEntry = await entry.update();
+    const publishedEntry = await updatedEntry.publish(); // Publish the updated entry
 
     res.status(200).json({ message: "Score updated successfully" });
   } catch (error) {

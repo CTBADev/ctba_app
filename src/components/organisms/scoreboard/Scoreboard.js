@@ -1,9 +1,6 @@
 // components/Scoreboard.js
 import React, { useEffect, useState } from "react";
-import io from "socket.io-client";
 import classes from "./Scoreboard.module.scss";
-
-let socket;
 
 const Scoreboard = ({
   entryId,
@@ -67,34 +64,14 @@ const Scoreboard = ({
   const seconds = Math.floor((time % 60000) / 1000);
   const milliseconds = Math.floor((time % 1000) / 10);
 
-  useEffect(() => {
-    // Initialize socket connection
-    socket = io();
-
-    // Listen for score updates
-    socket.on("score-updated", (data) => {
-      if (data.team === "A") setScoreA(data.newScore);
-      if (data.team === "B") setScoreB(data.newScore);
-    });
-
-    return () => {
-      // Clean up the socket connection
-      socket.off("score-updated");
-      socket.disconnect();
-    };
-  }, []);
-
   const togglePossession = () => {
     setPossession((prevPossession) => (prevPossession === "A" ? "B" : "A"));
   };
 
-  // Function to update score locally, emit it over Socket.io, and persist in Contentful
+  // Function to update score
   const updateScore = async (team, newScore) => {
     if (team === "A") setScoreA(newScore);
     if (team === "B") setScoreB(newScore);
-
-    // Emit the update to the server for real-time effect
-    socket.emit("update-score", { team, newScore });
 
     // Call the API route to update the score in Contentful
     await fetch("/api/updateScore", {
