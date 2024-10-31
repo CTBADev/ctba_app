@@ -8,10 +8,10 @@ $btn-clr: $yellow;
 $btn-clr-2: $black;
 $btn-border-color: transparent;
 $buttonFont: $garetHeavy;
-$buttonFontWeight: 500;
+$buttonFontWeight: 300;
 $buttonFontSize: 15px;
 $buttonLineHeight: normal;
-$buttonMinWidth: 150px;
+$buttonMinWidth: none;
 
 $lightButtonFontWeight: 400;
 $mediumButtonFontWeight: 600;
@@ -27,8 +27,8 @@ $radius-lrg: 50px;
 
 .aBtn {
   display: inline-block;
-  padding: 15px 25px;
-  margin: 0 15px;
+  padding: 10px;
+  margin: 0;
   font-style: normal;
   font-family: $buttonFont;
   font-weight: $buttonFontWeight;
@@ -48,7 +48,7 @@ $radius-lrg: 50px;
   user-select: none;
   background-image: none;
   border: 0;
-  border-radius: $radius-lrg;
+  border-radius: $radius-med;
   color: $btn-clr-2;
   background-color: $btn-clr;
   border-color: $btn-border-color;
@@ -60,8 +60,8 @@ $radius-lrg: 50px;
 
   &.btnSmall {
     min-width: auto;
-    padding: 5px 8px;
-    margin: 0 3px;
+    padding: 5px;
+    margin: 0;
   }
 
   // button spacing
