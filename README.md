@@ -1,3 +1,3 @@
 # CTBA App
 
-NextJS app
+NextJS14 app to manage game scores
