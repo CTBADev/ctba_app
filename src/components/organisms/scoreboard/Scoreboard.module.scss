@@ -130,8 +130,13 @@
   .mScorePoints {
     display: flex;
     gap: 10px;
+    justify-content: center;
     max-width: 180px;
     margin: 5px auto 10px;
+    .adjust,
+    .reset {
+      padding: 5px 15px;
+    }
   }
 }
 
@@ -189,6 +194,19 @@
 
 // 1200px up
 @media ($xl-up) {
+  .oGameScore {
+    .mScorePoints {
+      .pt3,
+      .pt2,
+      .pt1 {
+        padding: 20px;
+      }
+      .adjust,
+      .reset {
+        padding: 8px 30px;
+      }
+    }
+  }
 }
 
 // 1400px up

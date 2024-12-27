@@ -33,6 +33,7 @@ const Scoreboard = ({
   const [inputMinutes, setInputMinutes] = useState(12);
   const [inputSeconds, setInputSeconds] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [resultPhoto, setResultPhoto] = useState(false);
 
   // Set initial image URL from scoresheet prop
   useEffect(() => {
@@ -263,7 +264,7 @@ const Scoreboard = ({
         <div className={`${classes.oRow} row`}>
           <div className={`${classes.oColStatsTeamA} col`}>
             <div className={`${classes.oGameScore}`}>
-              <h4>ATTEMPTS</h4>
+              <h4>TEAM A</h4>
               <div className={`${classes.mScorePoints}`}>
                 <button
                   className={`aBtn ${classes.pt3}`}
@@ -295,7 +296,7 @@ const Scoreboard = ({
                   className={`aBtn btnSmall ${classes.reset}`}
                   onClick={() => setScoreA(0)}
                 >
-                  Reset Score
+                  Reset
                 </button>
               </div>
             </div>
@@ -388,7 +389,7 @@ const Scoreboard = ({
           </div>
           <div className={`${classes.oColStatsTeamB} col`}>
             <div className={`${classes.oGameScore}`}>
-              <h4>ATTEMPTS</h4>
+              <h4>TEAM B</h4>
               <div className={`${classes.mScorePoints}`}>
                 <button
                   className={`aBtn ${classes.pt3}`}
@@ -420,7 +421,7 @@ const Scoreboard = ({
                   className={`aBtn btnSmall ${classes.reset}`}
                   onClick={() => setScoreB(0)}
                 >
-                  Reset Score
+                  Reset
                 </button>
               </div>
             </div>
@@ -447,26 +448,33 @@ const Scoreboard = ({
               <button onClick={() => setTimeOutsB(0)}>Reset Timeouts</button>
             </div>
           </div>
-          <div className={`${classes.oColStatsTeamB} col`}>
-            {scoresheet ? (
-              <p>
-                <Link href={`http:${scoresheet}`} target="_blank">
-                  scoresheet uploaded
-                </Link>
-              </p>
-            ) : (
+        </div>
+        <div className={`${classes.oScoresheet}`}>
+          <button>SS</button>
+          <>
+            {resultPhoto && (
               <>
-                <ImageUpload onUpload={handleImageUpload} />
-                {isLoading ? (
-                  <p>uploading</p>
+                {scoresheet ? (
+                  <p>
+                    <Link href={`http:${scoresheet}`} target="_blank">
+                      scoresheet uploaded
+                    </Link>
+                  </p>
                 ) : (
                   <>
-                    <img src={imageUrl} width="20" height="20" />
+                    <ImageUpload onUpload={handleImageUpload} />
+                    {isLoading ? (
+                      <p>uploading</p>
+                    ) : (
+                      <>
+                        <img src={imageUrl} width="20" height="20" />
+                      </>
+                    )}
                   </>
                 )}
               </>
             )}
-          </div>
+          </>
         </div>
       </div>
     </>
