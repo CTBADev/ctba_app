@@ -389,7 +389,7 @@ const Scoreboard = ({
                   </div>
                   <div className={`${classes.mScorePoints}`}>
                     <button onClick={togglePossession} className={`aBtn`}>
-                      Possession Arrow
+                      Possession
                     </button>
                   </div>
                   <h3>PERIODS</h3>
