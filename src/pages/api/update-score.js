@@ -76,32 +76,70 @@ async function processGameUpdates(gameId) {
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).json({ message: "Method not allowed" });
   }
 
   const { gameId, scoreA, scoreB } = req.body;
 
-  if (!gameId || typeof scoreA !== "number" || typeof scoreB !== "number") {
-    return res.status(400).json({ error: "Invalid request parameters" });
+  if (!gameId || scoreA === undefined || scoreB === undefined) {
+    return res.status(400).json({ message: "Missing required fields" });
   }
 
   try {
-    // Add the update to the queue
-    if (!updateQueue.has(gameId)) {
-      updateQueue.set(gameId, []);
-    }
-    updateQueue.get(gameId).push({ scoreA, scoreB });
+    console.log("Updating score for game:", gameId);
+    console.log("New scores:", { scoreA, scoreB });
 
-    // Process the update
-    const result = await processGameUpdates(gameId);
+    const client = createClient({
+      accessToken: process.env.CONTENTFUL_MANAGEMENT_TOKEN,
+    });
 
-    if (result.success) {
-      res.status(200).json(result);
-    } else {
-      res.status(500).json({ error: result.error });
+    const space = await client.getSpace(
+      process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID
+    );
+    const environment = await space.getEnvironment("master");
+    const entry = await environment.getEntry(gameId);
+
+    // Get current version and fields
+    const version = entry.sys.version;
+    const fields = entry.fields;
+
+    // Update only the score fields
+    fields.scoreA = { "en-US": scoreA };
+    fields.scoreB = { "en-US": scoreB };
+
+    // Update results based on scores
+    if (scoreA > scoreB) {
+      fields.resultTeamA = { "en-US": "W" };
+      fields.resultTeamB = { "en-US": "L" };
+    } else if (scoreB > scoreA) {
+      fields.resultTeamA = { "en-US": "L" };
+      fields.resultTeamB = { "en-US": "W" };
     }
+
+    // Update the entry
+    const updatedEntry = await environment.updateEntry(
+      gameId,
+      {
+        fields,
+      },
+      version
+    );
+
+    // Publish the entry
+    const publishedEntry = await environment.publishEntry(
+      gameId,
+      updatedEntry.sys.version
+    );
+
+    return res.status(200).json({
+      message: "Score updated successfully",
+      entry: publishedEntry,
+    });
   } catch (error) {
     console.error("Error updating score:", error);
-    res.status(500).json({ error: "Failed to update score" });
+    return res.status(500).json({
+      message: "Error updating score",
+      error: error.message,
+    });
   }
 }
