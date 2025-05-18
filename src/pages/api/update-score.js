@@ -31,6 +31,23 @@ async function processGameUpdates(gameId) {
       "en-US": latestUpdate.scoreB,
     };
 
+    // If game is locked and has a scoresheet, update the results
+    if (
+      entry.fields.isLocked?.["en-US"] &&
+      entry.fields.scoresheet?.["en-US"]
+    ) {
+      const scoreA = entry.fields.scoreA["en-US"];
+      const scoreB = entry.fields.scoreB["en-US"];
+
+      if (scoreA > scoreB) {
+        entry.fields.resultTeamA = { "en-US": "W" };
+        entry.fields.resultTeamB = { "en-US": "L" };
+      } else if (scoreB > scoreA) {
+        entry.fields.resultTeamA = { "en-US": "L" };
+        entry.fields.resultTeamB = { "en-US": "W" };
+      }
+    }
+
     const updatedEntry = await entry.update();
     await updatedEntry.publish();
 
@@ -43,6 +60,8 @@ async function processGameUpdates(gameId) {
         id: updatedEntry.sys.id,
         scoreA: updatedEntry.fields.scoreA["en-US"],
         scoreB: updatedEntry.fields.scoreB["en-US"],
+        resultTeamA: updatedEntry.fields.resultTeamA?.["en-US"],
+        resultTeamB: updatedEntry.fields.resultTeamB?.["en-US"],
       },
     };
   } catch (error) {
@@ -57,23 +76,17 @@ async function processGameUpdates(gameId) {
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ message: "Method not allowed" });
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  const { gameId, scoreA, scoreB } = req.body;
+
+  if (!gameId || typeof scoreA !== "number" || typeof scoreB !== "number") {
+    return res.status(400).json({ error: "Invalid request parameters" });
   }
 
   try {
-    const { gameId, scoreA, scoreB } = req.body;
-
-    if (!gameId || scoreA === undefined || scoreB === undefined) {
-      return res.status(400).json({
-        success: false,
-        error: "Missing required fields: gameId, scoreA, or scoreB",
-      });
-    }
-
-    console.log("Queueing score update for game:", gameId);
-    console.log("New scores:", { scoreA, scoreB });
-
-    // Add update to queue
+    // Add the update to the queue
     if (!updateQueue.has(gameId)) {
       updateQueue.set(gameId, []);
     }
@@ -83,18 +96,12 @@ export default async function handler(req, res) {
     const result = await processGameUpdates(gameId);
 
     if (result.success) {
-      console.log("Update successful");
       res.status(200).json(result);
     } else {
-      console.error("Update failed:", result.error);
-      res.status(500).json(result);
+      res.status(500).json({ error: result.error });
     }
   } catch (error) {
-    console.error("Error in update-score API:", error);
-    res.status(500).json({
-      success: false,
-      error: error.message,
-      details: error.stack,
-    });
+    console.error("Error updating score:", error);
+    res.status(500).json({ error: "Failed to update score" });
   }
 }

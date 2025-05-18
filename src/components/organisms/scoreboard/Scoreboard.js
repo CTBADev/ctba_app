@@ -448,24 +448,14 @@ const Scoreboard = ({
                     <button onClick={updateTime} className={`aBtn btnSmall`}>
                       Set Time
                     </button>
-                    {/* <button
-                      onClick={resetCountdown}
-                      className={`aBtn btnSmall`}
-                    >
-                      Reset
-                    </button> */}
                   </div>
-                  <h3>upload scoresheet</h3>
                   {scoresheet ? (
-                    <Image
-                      src={`https:${scoresheet}`}
-                      alt={scoresheet}
-                      className={classes.scoresheetImage}
-                      width={500}
-                      height={300}
-                    />
+                    <Link href={`https:${scoresheet}`} target="_blank">
+                      VIEW SCORESHEET
+                    </Link>
                   ) : (
                     <div className={`${classes.oImageUpload}`}>
+                      <h3>upload scoresheet</h3>
                       <ImageUpload
                         onImageUpload={handleImageUpload}
                         isLoading={isLoading}
@@ -473,7 +463,11 @@ const Scoreboard = ({
                       />
                       {imageUrl && (
                         <div className={classes.oImagePreview}>
-                          <img src={imageUrl} alt="Scoresheet" />
+                          <img
+                            src={imageUrl}
+                            alt="Scoresheet"
+                            className={classes.aImage}
+                          />
                         </div>
                       )}
                     </div>
