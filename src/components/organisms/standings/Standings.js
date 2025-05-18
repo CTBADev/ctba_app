@@ -84,9 +84,8 @@ const Standings = ({ games }) => {
       sortedAgeGroups[ageGroup] = Object.values(standings[ageGroup])
         .filter((team) => team.wins > 0 || team.losses > 0 || team.forfeits > 0) // Only show teams with games played
         .sort((a, b) => {
-          // Sort by points first, then by wins, then by point difference
+          // Sort by points first, then by point difference
           if (b.points !== a.points) return b.points - a.points;
-          if (b.wins !== a.wins) return b.wins - a.wins;
           const diffA = a.pointsFor - a.pointsAgainst;
           const diffB = b.pointsFor - b.pointsAgainst;
           return diffB - diffA;
@@ -122,11 +121,10 @@ const Standings = ({ games }) => {
                 <th>W</th>
                 <th>L</th>
                 <th>F</th>
-                <th>PTS</th>
                 <th>PF</th>
                 <th>PA</th>
                 <th>DIFF</th>
-                <th>PCT</th>
+                <th>PTS</th>
               </tr>
             </thead>
             <tbody>
@@ -139,17 +137,10 @@ const Standings = ({ games }) => {
                   <td>{team.wins}</td>
                   <td>{team.losses}</td>
                   <td>{team.forfeits}</td>
-                  <td>{team.points}</td>
                   <td>{team.pointsFor}</td>
                   <td>{team.pointsAgainst}</td>
                   <td>{team.pointsFor - team.pointsAgainst}</td>
-                  <td>
-                    {(
-                      (team.wins / (team.wins + team.losses + team.forfeits)) *
-                      100
-                    ).toFixed(1)}
-                    %
-                  </td>
+                  <td>{team.points}</td>
                 </tr>
               ))}
             </tbody>
