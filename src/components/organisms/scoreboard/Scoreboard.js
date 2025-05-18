@@ -392,6 +392,31 @@ const Scoreboard = ({
                       Possession Arrow
                     </button>
                   </div>
+                  <h3>PERIODS</h3>
+                  <div className={`${classes.mScorePoints}`}>
+                    <button
+                      className={`aBtn btnSmall`}
+                      onClick={() =>
+                        setGamePeriods((prev) => Math.min(8, prev + 1))
+                      }
+                    >
+                      +1
+                    </button>
+                    <button
+                      className={`aBtn btnSmall`}
+                      onClick={() =>
+                        setGamePeriods((prev) => Math.max(1, prev - 1))
+                      }
+                    >
+                      -1
+                    </button>
+                    <button
+                      className={`aBtn btnSmall`}
+                      onClick={() => setGamePeriods(1)}
+                    >
+                      Reset
+                    </button>
+                  </div>
                   <h3>clock settings</h3>
                   <div className={`${classes.mScorePoints}`}>
                     <input
