@@ -1,73 +1,69 @@
 import React, { useEffect, useState } from "react";
 import { getAllGames } from "../../lib/contentful";
 import Scoreboard from "../components/organisms/scoreboard/Scoreboard";
-import Link from "next/link";
-
 const GameScore = () => {
   const [games, setGames] = useState([]);
   const [selectedGame, setSelectedGame] = useState(null);
-
-  useEffect(() => {
-    async function fetchGames() {
-      const data = await getAllGames();
-      setGames(data);
+  const fetchGames = async () => {
+    try {
+      const gamesData = await getAllGames();
+      setGames(gamesData);
+    } catch (error) {
+      console.error("Error fetching games:", error);
     }
+  };
+  useEffect(() => {
     fetchGames();
   }, []);
-
-  const handleSelectGame = (game) => {
-    setSelectedGame(game);
+  const handleScoreUpdate = async () => {
+    await fetchGames();
   };
-
+  if (selectedGame) {
+    return (
+      <div>
+        <button onClick={() => setSelectedGame(null)}>Back to Games</button>
+        <Scoreboard
+          entryId={selectedGame.id}
+          initialTeamA={selectedGame.teamA}
+          initialTeamB={selectedGame.teamB}
+          initialScoreA={selectedGame.scoreA}
+          initialScoreB={selectedGame.scoreB}
+          scoresheet={selectedGame.scoresheet}
+          teamAId={selectedGame.teamAId}
+          teamBId={selectedGame.teamBId}
+          onScoreUpdate={handleScoreUpdate}
+        />
+      </div>
+    );
+  }
   return (
-    <div>
-      <h1>Select a Game to Update Scores</h1>
-      {selectedGame ? (
-        <>
-          <Scoreboard
-            entryId={selectedGame.id}
-            initialTeamA={selectedGame.teamA}
-            initialTeamB={selectedGame.teamB}
-            initialScoreA={selectedGame.scoreA}
-            initialScoreB={selectedGame.scoreB}
-            scoresheet={selectedGame.scoreSheet}
-            status={selectedGame.status}
-          />
-          <button onClick={() => setSelectedGame(null)}>back to list</button>
-        </>
-      ) : (
-        <div className="game-list">
-          {games.map((game) => (
-            <div key={game.id} className="game-item">
-              <h2>
-                {game.teamA} vs {game.teamB}
-              </h2>
-              <p>Status: {game.status}</p>
+    <div className="game-list">
+      {games.map((game) => (
+        <div key={game.id} className="game-item">
+          <h3>
+            {game.teamA} vs {game.teamB}
+          </h3>
+          <p>
+            Score: {game.scoreA} - {game.scoreB}
+          </p>
+          <>
+            {game.scoreSheet && (
               <p>
-                Score: {game.scoreA} - {game.scoreB}
+                <Link href={`http:${game.scoreSheet}`} target="_blank">
+                  scoresheet uploaded
+                </Link>
               </p>
-              <>
-                {" "}
-                {game.scoreSheet && (
-                  <p>
-                    <Link href={`http:${game.scoreSheet}`} target="_blank">
-                      scoresheet uploaded
-                    </Link>
-                  </p>
-                )}
-              </>
-              <>
-                {!game.isLocked && (
-                  <button onClick={() => handleSelectGame(game)}>
-                    Update Score
-                  </button>
-                )}
-              </>
-            </div>
-          ))}
+            )}
+          </>
+          <>
+            {!game.isLocked && (
+              <button onClick={() => setSelectedGame(game)}>
+                Update Score
+              </button>
+            )}
+          </>
         </div>
-      )}
-
+      ))}
       <style jsx>{`
         .game-list {
           display: flex;
@@ -93,5 +89,4 @@ const GameScore = () => {
     </div>
   );
 };
-
 export default GameScore;
