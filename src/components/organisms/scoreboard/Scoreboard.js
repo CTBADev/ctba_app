@@ -1,16 +1,14 @@
-// components/Scoreboard.js
 import React, { useEffect, useState } from "react";
 import classes from "./Scoreboard.module.scss";
 import { createClient } from "contentful-management";
 import ImageUpload from "../imageUpload/ImageUpload";
 import Link from "next/link";
-
-const { C_SPACE_ID, C_CMA_KEY } = require("../../../helpers/contentful-config");
-
-const contentfulClient = createClient({
-  accessToken: C_CMA_KEY,
-});
-
+import { updateGameScore } from "../../../../lib/contentful";
+const {
+  C_SPACE_ID,
+  C_CMA_KEY,
+} = require("../../../../helpers/contentful-config");
+const contentfulClient = createClient({ accessToken: C_CMA_KEY });
 const Scoreboard = ({
   entryId,
   initialTeamA,
@@ -18,6 +16,9 @@ const Scoreboard = ({
   initialScoreA,
   initialScoreB,
   scoresheet,
+  teamAId,
+  teamBId,
+  onScoreUpdate,
 }) => {
   const [scoreA, setScoreA] = useState(initialScoreA);
   const [scoreB, setScoreB] = useState(initialScoreB);
@@ -34,20 +35,17 @@ const Scoreboard = ({
   const [inputSeconds, setInputSeconds] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [resultPhoto, setResultPhoto] = useState(false);
-
-  // Set initial image URL from scoresheet prop
   useEffect(() => {
     if (scoresheet?.fields?.file?.url) {
       setImageUrl(`https:${scoresheet.fields.file.url}`);
     }
   }, [scoresheet]);
-
   useEffect(() => {
     let timer;
     if (isRunning && time > 0) {
       timer = setInterval(() => {
         setTime((prevTime) => prevTime - 10);
-      }, 10); // Update every 10 milliseconds
+      }, 10);
     } else if (time <= 0) {
       clearInterval(timer);
       setIsRunning(false);
@@ -55,67 +53,55 @@ const Scoreboard = ({
     }
     return () => clearInterval(timer);
   }, [isRunning, time]);
-
   const startCountdown = () => {
     if (time > 0) {
       setIsRunning(true);
     }
   };
-
   const stopCountdown = () => {
     setIsRunning(false);
   };
-
   const resetCountdown = () => {
     setTime(inputMinutes * 60 * 1000 + inputSeconds * 1000);
     setIsRunning(false);
   };
-
   const updateTime = () => {
     const newTime = inputMinutes * 60 * 1000 + inputSeconds * 1000;
     setTime(newTime);
   };
-
-  // Format time in minutes, seconds, milliseconds
   const minutes = Math.floor(time / 60000);
   const seconds = Math.floor((time % 60000) / 1000);
   const milliseconds = Math.floor((time % 1000) / 10);
-
   const togglePossession = () => {
     setPossession((prevPossession) => (prevPossession === "A" ? "B" : "A"));
   };
-
-  // Function to update score
   const updateScore = async (team, newScore) => {
-    if (team === "A") setScoreA(newScore);
-    if (team === "B") setScoreB(newScore);
-
-    // Call the API route to update the score in Contentful
-    await fetch("/api/updateScore", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    try {
+      if (team === "A") setScoreA(newScore);
+      if (team === "B") setScoreB(newScore);
+      await updateGameScore(
         entryId,
-        team,
-        newScore,
-      }),
-    });
+        team === "A" ? newScore : scoreA,
+        team === "B" ? newScore : scoreB
+      );
+      if (onScoreUpdate) {
+        await onScoreUpdate();
+      }
+    } catch (error) {
+      console.error("Error updating score:", error);
+      if (team === "A") setScoreA(scoreA);
+      if (team === "B") setScoreB(scoreB);
+    }
   };
   const handleImageUpload = async (file) => {
     try {
-      setImageUrl(null); // Clear any existing image
+      setImageUrl(null);
       setIsLoading(true);
       const space = await contentfulClient.getSpace(C_SPACE_ID);
       const environment = await space.getEnvironment("master");
-
-      // Step 1: Create an asset with the uploaded file
       let asset = await environment.createAssetFromFiles({
         fields: {
-          title: {
-            "en-US": file.name,
-          },
+          title: { "en-US": file.name },
           file: {
             "en-US": {
               contentType: file.type,
@@ -125,44 +111,26 @@ const Scoreboard = ({
           },
         },
       });
-
-      // Step 2: Process the asset to prepare it for publishing
       await asset.processForAllLocales();
-
-      // Step 3: Wait for processing to complete and refetch the latest version
       let isProcessed = false;
       while (!isProcessed) {
         asset = await environment.getAsset(asset.sys.id);
         isProcessed = asset.fields.file["en-US"].url ? true : false;
         if (!isProcessed) {
-          await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second before checking again
+          await new Promise((resolve) => setTimeout(resolve, 1000));
         }
       }
-
-      // Step 4: Publish the asset
       const publishedAsset = await asset.publish();
-
-      // Step 5: Retrieve and update the game entry with a link to the uploaded asset
       let entry = await environment.getEntry(entryId);
       entry.fields.scoresheet = {
         "en-US": {
-          sys: {
-            type: "Link",
-            linkType: "Asset",
-            id: publishedAsset.sys.id, // Link the uploaded asset ID here
-          },
+          sys: { type: "Link", linkType: "Asset", id: publishedAsset.sys.id },
         },
       };
-
-      // Update and wait for changes to propagate
       entry = await entry.update();
       await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Get a fresh version before publishing
       entry = await environment.getEntry(entry.sys.id);
       await entry.publish();
-
-      // Set the image URL for display in the component
       setImageUrl(`https:${publishedAsset.fields.file["en-US"].url}`);
       setIsLoading(false);
     } catch (error) {
@@ -170,7 +138,6 @@ const Scoreboard = ({
       setIsLoading(false);
     }
   };
-
   return (
     <>
       <div className={classes.oScoreBoard}>
@@ -199,8 +166,28 @@ const Scoreboard = ({
                 </div>
               </div>
             </div>
-            <h2>{initialTeamA}</h2>
-            <div className="timeOuts">
+            <h2>
+              {initialTeamA}
+              {teamAId && (
+                <Link href={`/team/${teamAId}`} className={classes.teamLink}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                  </svg>
+                </Link>
+              )}
+            </h2>
+            <div className={classes.mTimeOuts}>
               <p>Timeouts: {timeOutsA}</p>
               <div className="foul-icons">
                 {[...Array(timeOutsA)].map((_, index) => (
@@ -227,10 +214,16 @@ const Scoreboard = ({
             <div className={classes.oGamePeriods}>
               <div className={classes.mGamePeriods}>
                 {[...Array(gamePeriods)].map((_, index) => (
-                  <div key={index} className={classes.aGamePeriod}></div>
+                  <div
+                    key={index}
+                    className={`${classes.aGamePeriod} ${
+                      index + 1 === gamePeriods ? classes.active : ""
+                    }`}
+                  >
+                    {index + 1}
+                  </div>
                 ))}
               </div>
-              <p>QTR</p>
             </div>
           </div>
           <div className={`${classes.oTeam} ${classes.teamB}`}>
@@ -248,8 +241,28 @@ const Scoreboard = ({
                 </div>
               </div>
             </div>
-            <h2>{initialTeamB}</h2>
-            <div className={classes.mTimeOuts}>
+            <h2>
+              {initialTeamB}
+              {teamBId && (
+                <Link href={`/team/${teamBId}`} className={classes.teamLink}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                  </svg>
+                </Link>
+              )}
+            </h2>
+            <div className="timeOuts">
               <p>Timeouts: {timeOutsB}</p>
               <div className="foul-icons">
                 {[...Array(timeOutsB)].map((_, index) => (
@@ -260,225 +273,272 @@ const Scoreboard = ({
           </div>
         </div>
       </div>
-      <div className={`${classes.oContainer} container`}>
-        <div className={`${classes.oRow} row`}>
-          <div className={`${classes.oColStatsTeamA} col`}>
+      <div className={`${classes.oControls} container-fluid`}>
+        <div className={`${classes.oControlsRow} row`}>
+          <div className={`${classes.oScoreControls} col`}>
+            <div className={`${classes.oTeamControls}`}>
+              <div className={classes.oTeamControl}>
+                <div className={classes.oGameScore}>
+                  <h3>SCORE</h3>
+                  <div className={classes.mScorePoints}>
+                    <button
+                      onClick={() => updateScore("A", scoreA + 3)}
+                      className={`aBtn`}
+                    >
+                      +3
+                    </button>
+                    <button
+                      onClick={() => updateScore("A", scoreA + 2)}
+                      className={`aBtn`}
+                    >
+                      +2
+                    </button>
+                    <button
+                      onClick={() => updateScore("A", scoreA + 1)}
+                      className={`aBtn`}
+                    >
+                      +1
+                    </button>
+                  </div>
+                  <div className={classes.mScorePoints}>
+                    <button
+                      onClick={() => updateScore("A", Math.max(0, scoreA - 1))}
+                      className={`aBtn btnSmall`}
+                    >
+                      -1
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            "Are you sure you want to set score to 0?"
+                          )
+                        ) {
+                          updateScore("A", 0);
+                        }
+                      }}
+                      className={`aBtn btnSmall`}
+                    >
+                      reset
+                    </button>
+                  </div>
+                  <div className={classes.oFoulControls}>
+                    <h3>TEAM FOULS</h3>
+                    <div className={classes.mScorePoints}>
+                      <button
+                        onClick={() => setFoulsA(Math.min(5, foulsA + 1))}
+                        className={`aBtn btnSmall`}
+                      >
+                        +1
+                      </button>
+                      <button
+                        onClick={() => setFoulsA(Math.max(0, foulsA - 1))}
+                        className={`aBtn btnSmall`}
+                      >
+                        -1
+                      </button>
+                      <button
+                        onClick={() => setFoulsA(0)}
+                        className={`aBtn btnSmall`}
+                      >
+                        reset
+                      </button>
+                    </div>
+                  </div>
+                  <div className={classes.oTimeoutControls}>
+                    <h3>TIMEOUTS</h3>
+                    <div className={classes.mScorePoints}>
+                      <button
+                        onClick={() => setTimeOutsA(Math.min(3, timeOutsA + 1))}
+                        className={`aBtn btnSmall`}
+                      >
+                        +1
+                      </button>
+                      <button
+                        onClick={() => setTimeOutsA(Math.max(0, timeOutsA - 1))}
+                        className={`aBtn btnSmall`}
+                      >
+                        -1
+                      </button>
+                      <button
+                        onClick={() => setTimeOutsA(0)}
+                        className={`aBtn btnSmall`}
+                      >
+                        reset
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className={`${classes.oGameControls} col`}>
             <div className={`${classes.oGameScore}`}>
-              <h4>TEAM A</h4>
-              <div className={`${classes.mScorePoints}`}>
-                <button
-                  className={`aBtn ${classes.pt3}`}
-                  onClick={() => updateScore("A", scoreA + 3)}
-                >
-                  +3
-                </button>
-                <button
-                  className={`aBtn ${classes.pt2}`}
-                  onClick={() => updateScore("A", scoreA + 2)}
-                >
-                  +2
-                </button>
-                <button
-                  className={`aBtn ${classes.pt1}`}
-                  onClick={() => updateScore("A", scoreA + 1)}
-                >
-                  +1
-                </button>
-              </div>
-              <div className={`${classes.mScorePoints}`}>
-                <button
-                  className={`aBtn btnSmall ${classes.adjust}`}
-                  onClick={() => updateScore("A", Math.max(0, scoreA - 1))}
-                >
-                  -1
-                </button>
-                <button
-                  className={`aBtn btnSmall ${classes.reset}`}
-                  onClick={() => setScoreA(0)}
-                >
-                  Reset
-                </button>
-              </div>
-            </div>
-            <div className={`${classes.mTeamFouls}`}>
-              <h4>TEAM FOULS</h4>
-              <button onClick={() => foulsA < 5 && setFoulsA(foulsA + 1)}>
-                +1 Foul
-              </button>
-              <button onClick={() => setFoulsA(Math.max(0, foulsA - 1))}>
-                -1 Foul
-              </button>
-              <button onClick={() => setFoulsA(0)}>Reset Fouls</button>
-            </div>
-            <div className={`${classes.mTeamTimeOuts}`}>
-              <h4>TIMEOUTS</h4>
-              <button
-                onClick={() => timeOutsA < 5 && setTimeOutsA(timeOutsA + 1)}
-              >
-                +1 Timeout
-              </button>
-              <button onClick={() => setTimeOutsA(Math.max(0, timeOutsA - 1))}>
-                -1 Timeout
-              </button>
-              <button onClick={() => setTimeOutsA(0)}>Reset Timeouts</button>
-            </div>
-          </div>
-          <div className={`${classes.oColGameControl} col`}>
-            <div className={classes.mCtaRegion}>
-              <h3>GAME TIME</h3>
-              <button
-                onClick={() => {
-                  if (isRunning) {
-                    stopCountdown();
-                  } else {
-                    startCountdown();
-                  }
-                }}
-                className={`${classes.aBtn} ${
-                  isRunning ? classes.isOn : classes.isOff
-                }`}
-              >
-                {isRunning ? "Stop" : "Start"}
-              </button>
-              <button onClick={resetCountdown} className={`${classes.aBtn} `}>
-                Reset
-              </button>
-              <div className={classes.mClockEdit}>
-                <label>
-                  Minutes:
-                  <input
-                    type="number"
-                    min="0"
-                    value={inputMinutes}
-                    onChange={(e) => setInputMinutes(Number(e.target.value))}
-                  />
-                </label>
-                <label>
-                  Seconds:
-                  <input
-                    type="number"
-                    min="0"
-                    max="59"
-                    value={inputSeconds}
-                    onChange={(e) => setInputSeconds(Number(e.target.value))}
-                  />
-                </label>
-                <button onClick={updateTime}>Set Time</button>
-              </div>
-            </div>
-            <div className={classes.mGamePeriodControls}>
-              <h3>PERIODS</h3>
-              <button
-                onClick={() =>
-                  gamePeriods < 8 && setGamePeriods(gamePeriods + 1)
-                }
-              >
-                +1 Quarter
-              </button>
-              <button
-                onClick={() => setGamePeriods(Math.max(1, gamePeriods - 1))}
-              >
-                -1 Quarter
-              </button>
-              <button onClick={() => setGamePeriods(1)}>Reset Quarters</button>
-            </div>
-            <h3>POSSESSION ARROW</h3>
-            <button onClick={togglePossession} className="arrow-button">
-              Toggle Possession
-            </button>
-          </div>
-          <div className={`${classes.oColStatsTeamB} col`}>
-            <div className={`${classes.oGameScore}`}>
-              <h4>TEAM B</h4>
-              <div className={`${classes.mScorePoints}`}>
-                <button
-                  className={`aBtn ${classes.pt3}`}
-                  onClick={() => updateScore("B", scoreB + 3)}
-                >
-                  +3
-                </button>
-                <button
-                  className={`aBtn ${classes.pt2}`}
-                  onClick={() => updateScore("B", scoreB + 2)}
-                >
-                  +2
-                </button>
-                <button
-                  className={`aBtn ${classes.pt1}`}
-                  onClick={() => updateScore("B", scoreB + 1)}
-                >
-                  +1
-                </button>
-              </div>
-              <div className={`${classes.mScorePoints}`}>
-                <button
-                  className={`aBtn btnSmall ${classes.adjust}`}
-                  onClick={() => updateScore("B", Math.max(0, scoreB - 1))}
-                >
-                  -1
-                </button>
-                <button
-                  className={`aBtn btnSmall ${classes.reset}`}
-                  onClick={() => setScoreB(0)}
-                >
-                  Reset
-                </button>
-              </div>
-            </div>
-            <div className={`${classes.mTeamFouls}`}>
-              <h4>TEAM FOULS</h4>
-              <button onClick={() => foulsB < 5 && setFoulsB(foulsB + 1)}>
-                +1 Foul
-              </button>
-              <button onClick={() => setFoulsB(Math.max(0, foulsB - 1))}>
-                -1 Foul
-              </button>
-              <button onClick={() => setFoulsB(0)}>Reset Fouls</button>
-            </div>
-            <div className={`${classes.mTeamTimeOuts}`}>
-              <h4>TIMEOUTS</h4>
-              <button
-                onClick={() => timeOutsB < 5 && setTimeOutsB(timeOutsB + 1)}
-              >
-                +1 Timeout
-              </button>
-              <button onClick={() => setTimeOutsB(Math.max(0, timeOutsB - 1))}>
-                -1 Timeout
-              </button>
-              <button onClick={() => setTimeOutsB(0)}>Reset Timeouts</button>
-            </div>
-          </div>
-        </div>
-        <div className={`${classes.oScoresheet}`}>
-          <button>SS</button>
-          <>
-            {resultPhoto && (
-              <>
-                {scoresheet ? (
-                  <p>
-                    <Link href={`http:${scoresheet}`} target="_blank">
-                      scoresheet uploaded
-                    </Link>
-                  </p>
-                ) : (
-                  <>
-                    <ImageUpload onUpload={handleImageUpload} />
-                    {isLoading ? (
-                      <p>uploading</p>
-                    ) : (
-                      <>
-                        <img src={imageUrl} width="20" height="20" />
-                      </>
+              <div className={`${classes.oTimeControls}`}>
+                <div className={classes.oTimeButtons}>
+                  <h3>GAME CLOCK</h3>
+                  <div className={`${classes.mScorePoints}`}>
+                    <button
+                      onClick={isRunning ? stopCountdown : startCountdown}
+                      className={`${classes.aButton} aBtn btnBig  ${
+                        isRunning ? classes.active : ""
+                      }`}
+                    >
+                      {isRunning ? "Stop" : "Start"}
+                    </button>
+                  </div>
+                  <div className={`${classes.mScorePoints}`}>
+                    <button onClick={togglePossession} className={`aBtn`}>
+                      Possession Arrow
+                    </button>
+                  </div>
+                  <h3>clock settings</h3>
+                  <div className={`${classes.mScorePoints}`}>
+                    <input
+                      type="number"
+                      min="0"
+                      max="59"
+                      value={inputMinutes}
+                      onChange={(e) =>
+                        setInputMinutes(parseInt(e.target.value) || 0)
+                      }
+                    />
+                    <span>:</span>
+                    <input
+                      type="number"
+                      min="0"
+                      max="59"
+                      value={inputSeconds}
+                      onChange={(e) =>
+                        setInputSeconds(parseInt(e.target.value) || 0)
+                      }
+                    />
+                    <button onClick={updateTime} className={`aBtn btnSmall`}>
+                      Set Time
+                    </button>
+                    {/* <button
+                      onClick={resetCountdown}
+                      className={`aBtn btnSmall`}
+                    >
+                      Reset
+                    </button> */}
+                  </div>
+                  <h3>upload scoresheet</h3>
+                  <div className={`${classes.oImageUpload}`}>
+                    <ImageUpload
+                      onImageUpload={handleImageUpload}
+                      isLoading={isLoading}
+                    />
+                    {imageUrl && (
+                      <div className={classes.oImagePreview}>
+                        <img src={imageUrl} alt="Scoresheet" />
+                      </div>
                     )}
-                  </>
-                )}
-              </>
-            )}
-          </>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className={`${classes.oScoreControls} col`}>
+            <div className={`${classes.oTeamControls}`}>
+              <div className={classes.oTeamControl}>
+                <div className={classes.oGameScore}>
+                  <h3>SCORE</h3>
+                  <div className={classes.mScorePoints}>
+                    <button
+                      onClick={() => updateScore("B", scoreB + 3)}
+                      className={`aBtn `}
+                    >
+                      +3
+                    </button>
+                    <button
+                      onClick={() => updateScore("B", scoreB + 2)}
+                      className={`aBtn `}
+                    >
+                      +2
+                    </button>
+                    <button
+                      onClick={() => updateScore("B", scoreB + 1)}
+                      className={`aBtn `}
+                    >
+                      +1
+                    </button>
+                  </div>
+                  <div className={classes.mScorePoints}>
+                    <button
+                      onClick={() => updateScore("B", Math.max(0, scoreB - 1))}
+                      className={`aBtn btnSmall`}
+                    >
+                      -1
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            "Are you sure you want to set score to 0?"
+                          )
+                        ) {
+                          updateScore("B", 0);
+                        }
+                      }}
+                      className={`aBtn btnSmall`}
+                    >
+                      reset
+                    </button>
+                  </div>
+                  <div className={`${classes.oFoulControls}`}>
+                    <h3>TEAM FOULS</h3>
+                    <div className={classes.mScorePoints}>
+                      <button
+                        onClick={() => setFoulsB(Math.min(5, foulsB + 1))}
+                        className={`aBtn btnSmall`}
+                      >
+                        +1
+                      </button>
+                      <button
+                        onClick={() => setFoulsB(Math.max(0, foulsB - 1))}
+                        className={`aBtn btnSmall`}
+                      >
+                        -1
+                      </button>
+                      <button
+                        onClick={() => setFoulsB(0)}
+                        className={`aBtn btnSmall`}
+                      >
+                        reset
+                      </button>
+                    </div>
+                  </div>
+                  <div className={classes.oTimeoutControls}>
+                    <h3>TIMEOUTS</h3>
+                    <div className={classes.mScorePoints}>
+                      <button
+                        onClick={() => setTimeOutsB(Math.min(3, timeOutsB + 1))}
+                        className={`aBtn btnSmall`}
+                      >
+                        +1
+                      </button>
+                      <button
+                        onClick={() => setTimeOutsB(Math.max(0, timeOutsB - 1))}
+                        className={`aBtn btnSmall`}
+                      >
+                        -1
+                      </button>
+                      <button
+                        onClick={() => setTimeOutsB(0)}
+                        className={`aBtn btnSmall`}
+                      >
+                        reset
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </>
   );
 };
-
 export default Scoreboard;
