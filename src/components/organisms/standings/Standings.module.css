@@ -1,0 +1,103 @@
+.standingsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.filterSelect {
+  padding: 0.5rem 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 1rem;
+  min-width: 200px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: #1a237e;
+  box-shadow: 0 0 0 2px rgba(26, 35, 126, 0.1);
+}
+
+.divisionStandings {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.divisionTitle {
+  background: #1a237e;
+  color: white;
+  margin: 0;
+  padding: 1rem;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.standingsTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1rem;
+}
+
+.standingsTable th,
+.standingsTable td {
+  padding: 0.75rem;
+  text-align: center;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.standingsTable th {
+  background: #f5f5f5;
+  font-weight: 600;
+  color: #333;
+}
+
+.standingsTable td:first-child {
+  text-align: left;
+  font-weight: 500;
+}
+
+.standingsTable tr:last-child td {
+  border-bottom: none;
+}
+
+.playoffSpot {
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+.playoffSpot td {
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .standingsContainer {
+    padding: 0.5rem;
+  }
+
+  .divisionTitle {
+    font-size: 1.25rem;
+    padding: 0.75rem;
+  }
+
+  .standingsTable {
+    font-size: 0.9rem;
+  }
+
+  .standingsTable th,
+  .standingsTable td {
+    padding: 0.5rem;
+  }
+}
