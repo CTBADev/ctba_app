@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const {
   C_DELIVERY_KEY,
   C_GRAPHQL_URL,
@@ -35,8 +37,18 @@ export async function getStaticProps() {
 export default function Home({ homepage }) {
   const { title } = homepage.homepageCollection.items[0];
   return (
-    <div className="anchor" id="top">
-      <h1>{title}</h1>
+    <div className="anchor" id="top" style={{ textAlign: "center" }}>
+      <h1 style={{ display: "block", margin: "50px auto" }}>CTBL</h1>
+      <Link
+        className={`aBtn`}
+        style={{ marginRight: "10px" }}
+        href={"/standings"}
+      >
+        Standings
+      </Link>
+      <Link className={`aBtn`} href={"/score"}>
+        Games
+      </Link>
     </div>
   );
 }
