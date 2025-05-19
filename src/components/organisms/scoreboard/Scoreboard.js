@@ -4,11 +4,16 @@ import { createClient } from "contentful-management";
 import ImageUpload from "../imageUpload/ImageUpload";
 import Link from "next/link";
 import { updateGameScore } from "../../../../lib/contentful";
+import Image from "next/image";
 const {
   C_SPACE_ID,
   C_CMA_KEY,
 } = require("../../../../helpers/contentful-config");
-const contentfulClient = createClient({ accessToken: C_CMA_KEY });
+
+// Clean the CMA token by taking only the first line and trimming whitespace
+const cleanToken = C_CMA_KEY.split("\n")[0].trim();
+const contentfulClient = createClient({ accessToken: cleanToken });
+
 const Scoreboard = ({
   entryId,
   initialTeamA,
@@ -138,6 +143,8 @@ const Scoreboard = ({
       setIsLoading(false);
     }
   };
+
+  console.log("SSHHHEHEEEEEEEEE", scoresheet);
   return (
     <>
       <div className={classes.oScoreBoard}>
@@ -441,25 +448,30 @@ const Scoreboard = ({
                     <button onClick={updateTime} className={`aBtn btnSmall`}>
                       Set Time
                     </button>
-                    {/* <button
-                      onClick={resetCountdown}
-                      className={`aBtn btnSmall`}
-                    >
-                      Reset
-                    </button> */}
                   </div>
-                  <h3>upload scoresheet</h3>
-                  <div className={`${classes.oImageUpload}`}>
-                    <ImageUpload
-                      onImageUpload={handleImageUpload}
-                      isLoading={isLoading}
-                    />
-                    {imageUrl && (
-                      <div className={classes.oImagePreview}>
-                        <img src={imageUrl} alt="Scoresheet" />
-                      </div>
-                    )}
-                  </div>
+                  {scoresheet ? (
+                    <Link href={`https:${scoresheet}`} target="_blank">
+                      VIEW SCORESHEET
+                    </Link>
+                  ) : (
+                    <div className={`${classes.oImageUpload}`}>
+                      <h3>upload scoresheet</h3>
+                      <ImageUpload
+                        onImageUpload={handleImageUpload}
+                        isLoading={isLoading}
+                        existingScoresheet={scoresheet}
+                      />
+                      {imageUrl && (
+                        <div className={classes.oImagePreview}>
+                          <img
+                            src={imageUrl}
+                            alt="Scoresheet"
+                            className={classes.aImage}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

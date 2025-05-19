@@ -31,6 +31,23 @@ async function processGameUpdates(gameId) {
       "en-US": latestUpdate.scoreB,
     };
 
+    // If game is locked and has a scoresheet, update the results
+    if (
+      entry.fields.isLocked?.["en-US"] &&
+      entry.fields.scoresheet?.["en-US"]
+    ) {
+      const scoreA = entry.fields.scoreA["en-US"];
+      const scoreB = entry.fields.scoreB["en-US"];
+
+      if (scoreA > scoreB) {
+        entry.fields.resultTeamA = { "en-US": "W" };
+        entry.fields.resultTeamB = { "en-US": "L" };
+      } else if (scoreB > scoreA) {
+        entry.fields.resultTeamA = { "en-US": "L" };
+        entry.fields.resultTeamB = { "en-US": "W" };
+      }
+    }
+
     const updatedEntry = await entry.update();
     await updatedEntry.publish();
 
@@ -43,6 +60,8 @@ async function processGameUpdates(gameId) {
         id: updatedEntry.sys.id,
         scoreA: updatedEntry.fields.scoreA["en-US"],
         scoreB: updatedEntry.fields.scoreB["en-US"],
+        resultTeamA: updatedEntry.fields.resultTeamA?.["en-US"],
+        resultTeamB: updatedEntry.fields.resultTeamB?.["en-US"],
       },
     };
   } catch (error) {
@@ -60,41 +79,67 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: "Method not allowed" });
   }
 
+  const { gameId, scoreA, scoreB } = req.body;
+
+  if (!gameId || scoreA === undefined || scoreB === undefined) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+
   try {
-    const { gameId, scoreA, scoreB } = req.body;
-
-    if (!gameId || scoreA === undefined || scoreB === undefined) {
-      return res.status(400).json({
-        success: false,
-        error: "Missing required fields: gameId, scoreA, or scoreB",
-      });
-    }
-
-    console.log("Queueing score update for game:", gameId);
+    console.log("Updating score for game:", gameId);
     console.log("New scores:", { scoreA, scoreB });
 
-    // Add update to queue
-    if (!updateQueue.has(gameId)) {
-      updateQueue.set(gameId, []);
-    }
-    updateQueue.get(gameId).push({ scoreA, scoreB });
+    const client = createClient({
+      accessToken: process.env.CONTENTFUL_MANAGEMENT_TOKEN,
+    });
 
-    // Process the update
-    const result = await processGameUpdates(gameId);
+    const space = await client.getSpace(
+      process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID
+    );
+    const environment = await space.getEnvironment("master");
+    const entry = await environment.getEntry(gameId);
 
-    if (result.success) {
-      console.log("Update successful");
-      res.status(200).json(result);
-    } else {
-      console.error("Update failed:", result.error);
-      res.status(500).json(result);
+    // Get current version and fields
+    const version = entry.sys.version;
+    const fields = entry.fields;
+
+    // Update only the score fields
+    fields.scoreA = { "en-US": scoreA };
+    fields.scoreB = { "en-US": scoreB };
+
+    // Update results based on scores
+    if (scoreA > scoreB) {
+      fields.resultTeamA = { "en-US": "W" };
+      fields.resultTeamB = { "en-US": "L" };
+    } else if (scoreB > scoreA) {
+      fields.resultTeamA = { "en-US": "L" };
+      fields.resultTeamB = { "en-US": "W" };
     }
+
+    // Update the entry
+    const updatedEntry = await environment.updateEntry(
+      gameId,
+      {
+        fields,
+      },
+      version
+    );
+
+    // Publish the entry
+    const publishedEntry = await environment.publishEntry(
+      gameId,
+      updatedEntry.sys.version
+    );
+
+    return res.status(200).json({
+      message: "Score updated successfully",
+      entry: publishedEntry,
+    });
   } catch (error) {
-    console.error("Error in update-score API:", error);
-    res.status(500).json({
-      success: false,
+    console.error("Error updating score:", error);
+    return res.status(500).json({
+      message: "Error updating score",
       error: error.message,
-      details: error.stack,
     });
   }
 }

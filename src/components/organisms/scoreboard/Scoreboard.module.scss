@@ -165,6 +165,16 @@
   overflow: hidden;
 }
 
+.oImageUpload {
+  .oImagePreview {
+    max-width: 100px;
+    margin: 0 auto;
+    .aImage {
+      width: 100%;
+    }
+  }
+}
+
 // A.1. END -----------------------------------------------
 
 // B. MEDIA QUERIES ---------------------------------------
