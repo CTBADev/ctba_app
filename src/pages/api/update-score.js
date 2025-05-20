@@ -93,9 +93,7 @@ export default async function handler(req, res) {
       accessToken: process.env.CONTENTFUL_MANAGEMENT_TOKEN,
     });
 
-    const space = await client.getSpace(
-      process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID
-    );
+    const space = await client.getSpace(process.env.CONTENTFUL_SPACE_ID);
     const environment = await space.getEnvironment("master");
     const entry = await environment.getEntry(gameId);
 
