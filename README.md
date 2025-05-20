@@ -1,4 +1,4 @@
-# CTBA App
+# CTBA League Management App
 
 
 NextJS14 basketball league management app.
