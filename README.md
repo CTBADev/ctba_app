@@ -8,6 +8,7 @@ NextJS14 basketball league management app.
 - in game scoreboard
 - scores page updated from scoreboard
 - standings tables based on live results
+- contentful cms updates
 
 
 ## TECH
