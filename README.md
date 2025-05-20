@@ -10,11 +10,11 @@ NextJS14 basketball league management app.
 
 ## TECH
 
-FE: NextJS
+- FE: NextJS
 
-DB: contentful.com
+- DB: contentful.com
 
-HOSTING: vercel.com
+- HOSTING: vercel.com
 
 DEMO URL: 
 https://ctbaapp.vercel.app
