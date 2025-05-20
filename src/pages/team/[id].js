@@ -35,8 +35,6 @@ const TeamPage = () => {
   if (loading) return <div>Loading...</div>;
   if (!team) return <div>Team not found</div>;
 
-  console.log("zooooooo", team);
-
   return (
     <div className="container">
       <Link href="/clubs" className="back-button">

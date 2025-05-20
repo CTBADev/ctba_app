@@ -148,7 +148,6 @@ const Scoreboard = ({
     }
   };
 
-  console.log("SSHHHEHEEEEEEEEE", scoresheet);
   return (
     <>
       <div className={classes.oScoreBoard}>
@@ -208,20 +207,23 @@ const Scoreboard = ({
             </div>
           </div>
           <div className={classes.oGameData}>
-            <figure
-              className={`${classes.mPossessionArrow} ${
-                possession === "A" ? classes.teamA : classes.teamB
-              }`}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                version="1.1"
-                viewBox="0 0 100 100"
+            <div>
+              <figure
+                className={`${classes.mPossessionArrow} ${
+                  possession === "A" ? classes.teamA : classes.teamB
+                }`}
               >
-                <path d="M26.1,97.3l.9-94.6,46.9,46.9-47.8,47.8Z" />
-              </svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  version="1.1"
+                  viewBox="0 0 100 100"
+                >
+                  <path d="M26.1,97.3l.9-94.6,46.9,46.9-47.8,47.8Z" />
+                </svg>
+              </figure>
               <span>POS</span>
-            </figure>
+            </div>
+
             <div className={classes.oGamePeriods}>
               <div className={classes.mGamePeriods}>
                 {[...Array(gamePeriods)].map((_, index) => (
