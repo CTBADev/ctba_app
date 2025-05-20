@@ -35,9 +35,6 @@ const GamePage = () => {
   return (
     <div className="container">
       <div className="navigation-links">
-        <Link href="/game-score" className="back-link">
-          ← Back to Games
-        </Link>
         {game.teamAId && (
           <Link href={`/team/${game.teamAId}`} className="team-link">
             {game.teamA} Team Page
@@ -49,7 +46,6 @@ const GamePage = () => {
           </Link>
         )}
       </div>
-
       <h1 className="game-title">
         {game.teamA} vs {game.teamB}
       </h1>
@@ -77,7 +73,6 @@ const GamePage = () => {
           This game is locked and can't be edited.
         </div>
       )}
-
       <style jsx>{`
         .container {
           max-width: 1200px;
@@ -121,6 +116,9 @@ const GamePage = () => {
           margin: 20px 0;
         }
       `}</style>
+      <Link href="/game-score" className="aBtn">
+        ← Back to Games
+      </Link>
     </div>
   );
 };

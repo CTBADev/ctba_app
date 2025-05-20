@@ -129,6 +129,11 @@ export default function Fixtures({ fixtures }) {
           ))
         )}
       </div>
+      <div>
+        <Link href="/" className="aBtn" style={{ marginTop: "40px" }}>
+          ← Back to Home
+        </Link>
+      </div>
     </div>
   );
 }
