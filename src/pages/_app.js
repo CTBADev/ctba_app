@@ -1,6 +1,6 @@
 import "../scss/.base/bootstrap-grid.min.css";
 import "../styles/globals.scss";
-import Layout from "../components/Layout";
+import Layout from "../components/layout";
 
 function MyApp({ Component, pageProps }) {
   return (
