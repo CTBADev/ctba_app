@@ -1,83 +1,101 @@
-import { createClient } from "contentful";
+import { createClient as createContentfulClient } from "contentful";
+import { createClient as createContentfulManagementClient } from "contentful-management";
 
 // Get environment variables
-const spaceId = process.env.CONTENTFUL_SPACE_ID;
+const space = process.env.CONTENTFUL_SPACE_ID;
 const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN;
-const cmaKey = process.env.CONTENTFUL_MANAGEMENT_ACCESS_TOKEN;
-const graphqlUrl = `https://graphql.contentful.com/content/v1/spaces/${spaceId}/environments/master`;
 
-export function getClient() {
-  return createClient({
-    space: spaceId,
-    accessToken: accessToken,
+// Validate environment variables
+if (!space || !accessToken) {
+  console.error("Missing Contentful environment variables:", {
+    space: space ? "set" : "missing",
+    accessToken: accessToken ? "set" : "missing",
+  });
+}
+
+// Create Contentful client
+export const client = createContentfulClient({
+  space: space,
+  accessToken: accessToken,
+});
+
+export function getContentfulClient() {
+  if (!process.env.CONTENTFUL_MANAGEMENT_ACCESS_TOKEN) {
+    throw new Error("CONTENTFUL_MANAGEMENT_ACCESS_TOKEN is required");
+  }
+
+  return createContentfulManagementClient({
+    accessToken: process.env.CONTENTFUL_MANAGEMENT_ACCESS_TOKEN,
   });
 }
 
 export async function getAllGames() {
   try {
-    const response = await getClient().getEntries({
+    console.log("Fetching games from Contentful...");
+    const response = await client.getEntries({
       content_type: "game",
-      include: 2,
+      include: 2, // Include linked entries
+      order: "fields.gameNumber",
     });
 
-    return response.items.map((item) => {
+    if (!response.items || response.items.length === 0) {
+      console.log("No games found in Contentful");
+      return [];
+    }
+
+    const games = response.items.map((item) => {
       const fields = item.fields;
 
-      // Helper function to get string value from Contentful reference
-      const getStringValue = (field) => {
-        if (!field) return "";
-        if (typeof field === "string") return field;
-        // Handle Contentful references
-        if (field.fields) {
-          // Check for name field first
-          if (field.fields.name) return field.fields.name;
-          // Check for title field
-          if (field.fields.title) return field.fields.title;
-          // Check for clubName field
-          if (field.fields.clubName) return field.fields.clubName;
-          // If no specific field found, try to get the first string field
-          const firstStringField = Object.values(field.fields).find(
-            (val) => typeof val === "string"
-          );
-          if (firstStringField) return firstStringField;
-        }
-        return "";
-      };
-
-      // Helper function to get number value
-      const getNumberValue = (field) => {
-        if (typeof field === "number") return field;
-        return 0;
-      };
-
-      // Log the club field for debugging
-      console.log("Club field:", fields.club);
-
-      return {
+      // Log the raw fields for debugging
+      console.log("Raw game fields:", {
         id: item.sys.id,
-        teamA: getStringValue(fields.teamA),
-        teamB: getStringValue(fields.teamB),
-        teamADivision: getStringValue(fields.teamADivision),
-        teamBDivision: getStringValue(fields.teamBDivision),
-        club: getStringValue(fields.club),
-        ageGroup: getStringValue(fields.ageGroup),
-        resultTeamA: getStringValue(fields.resultTeamA),
-        resultTeamB: getStringValue(fields.resultTeamB),
-        scoreA: getNumberValue(fields.scoreA),
-        scoreB: getNumberValue(fields.scoreB),
+        fields: fields,
+      });
+
+      const game = {
+        id: item.sys.id,
+        gameNumber: fields.gameNumber || null,
+        teamA: fields.teamA?.fields?.clubName || null,
+        teamB: fields.teamB?.fields?.clubName || null,
+        ageGroup: fields.ageGroup?.fields?.name || null,
+        venue: fields.venue?.fields?.name || null,
+        courtNumber: fields.courtNumber || null,
+        fixtureDate: fields.fixtureDate || null,
+        scoreA: fields.scoreA || 0,
+        scoreB: fields.scoreB || 0,
+        resultTeamA: fields.resultTeamA || null,
+        resultTeamB: fields.resultTeamB || null,
         isLocked: fields.isLocked || false,
-        scoresheet: fields.scoresheet?.fields?.file?.url || "",
       };
+
+      console.log("Processed game:", game);
+      return game;
     });
+
+    console.log("Final games array length:", games.length);
+    return games;
   } catch (error) {
     console.error("Error fetching games:", error);
     return [];
   }
 }
 
+export async function getGameByNumber(gameNumber) {
+  try {
+    const response = await client.getEntries({
+      content_type: "game",
+      "fields.gameNumber": gameNumber,
+    });
+    return response.items[0];
+  } catch (error) {
+    console.error(`Error fetching game ${gameNumber}:`, error);
+    return null;
+  }
+}
+
 export async function getGameById(id) {
   try {
-    const response = await getClient().getEntry(id);
+    const response = await client.getEntry(id);
     return {
       id: response.sys.id,
       ...response.fields,

@@ -2,16 +2,21 @@ import React, { useState, useEffect } from "react";
 import styles from "./Standings.module.css";
 
 const Standings = ({ games }) => {
+  console.log("Standings component received games:", games);
   const [ageGroups, setAgeGroups] = useState({});
   const [selectedAgeGroup, setSelectedAgeGroup] = useState("all");
 
-  // Get unique age groups
+  // Get unique age groups and sort them in reverse alphabetical order
   const allAgeGroups = [
     "all",
-    ...new Set(games.map((game) => game.ageGroup).filter(Boolean)),
+    ...Array.from(new Set(games.map((game) => game.ageGroup).filter(Boolean)))
+      .sort()
+      .reverse(),
   ];
+  console.log("All age groups:", allAgeGroups);
 
   useEffect(() => {
+    console.log("Processing games in useEffect");
     // Process games to create standings
     const standings = {};
 
@@ -19,6 +24,7 @@ const Standings = ({ games }) => {
     const filteredGames = games.filter((game) => {
       return selectedAgeGroup === "all" || game.ageGroup === selectedAgeGroup;
     });
+    console.log("Filtered games:", filteredGames);
 
     filteredGames.forEach((game) => {
       const ageGroup = game.ageGroup;
@@ -78,20 +84,28 @@ const Standings = ({ games }) => {
       }
     });
 
+    console.log("Processed standings:", standings);
+
     // Convert to arrays and sort by points
     const sortedAgeGroups = {};
-    Object.keys(standings).forEach((ageGroup) => {
-      sortedAgeGroups[ageGroup] = Object.values(standings[ageGroup])
-        .filter((team) => team.wins > 0 || team.losses > 0 || team.forfeits > 0) // Only show teams with games played
-        .sort((a, b) => {
-          // Sort by points first, then by point difference
-          if (b.points !== a.points) return b.points - a.points;
-          const diffA = a.pointsFor - a.pointsAgainst;
-          const diffB = b.pointsFor - b.pointsAgainst;
-          return diffB - diffA;
-        });
-    });
+    Object.keys(standings)
+      .sort()
+      .reverse()
+      .forEach((ageGroup) => {
+        sortedAgeGroups[ageGroup] = Object.values(standings[ageGroup])
+          .filter(
+            (team) => team.wins > 0 || team.losses > 0 || team.forfeits > 0
+          ) // Only show teams with games played
+          .sort((a, b) => {
+            // Sort by points first, then by point difference
+            if (b.points !== a.points) return b.points - a.points;
+            const diffA = a.pointsFor - a.pointsAgainst;
+            const diffB = b.pointsFor - b.pointsAgainst;
+            return diffB - diffA;
+          });
+      });
 
+    console.log("Final sorted standings:", sortedAgeGroups);
     setAgeGroups(sortedAgeGroups);
   }, [games, selectedAgeGroup]);
 

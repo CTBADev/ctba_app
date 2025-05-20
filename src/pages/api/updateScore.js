@@ -35,7 +35,7 @@ async function processGameUpdates(gameId) {
 
     // If game is locked and has a scoresheet, update the results
     if (
-      entry.fields.isLocked?.["en-US"] &&
+      entry.fields.isLocked?.["en-US"] ||
       entry.fields.scoresheet?.["en-US"]
     ) {
       const scoreA = entry.fields.scoreA["en-US"];
