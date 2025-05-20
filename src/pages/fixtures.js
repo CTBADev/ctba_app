@@ -1,9 +1,33 @@
 import React, { useEffect, useState } from "react";
-import { getAllGames } from "../../lib/contentful";
+import { getAllGames, getFutureFixtures } from "../../lib/contentful";
 import Link from "next/link";
 import styles from "./Fixtures.module.css";
 
-export default function FixturesPage() {
+// Helper function to format date consistently
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  return date
+    .toLocaleDateString("en-GB", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    })
+    .replace(/,/g, ""); // Remove commas for consistency
+}
+
+export async function getStaticProps() {
+  const fixtures = await getFutureFixtures();
+  return {
+    props: {
+      fixtures,
+    },
+    // Revalidate every 5 minutes
+    revalidate: 300,
+  };
+}
+
+export default function Fixtures({ fixtures }) {
   const [games, setGames] = useState([]);
   const [selectedAgeGroup, setSelectedAgeGroup] = useState("all");
   const [error, setError] = useState(null);
@@ -51,7 +75,7 @@ export default function FixturesPage() {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Upcoming Games</h1>
+      <h1 className={styles.title}>Upcoming Fixtures</h1>
 
       <div className={styles.filters}>
         <select
@@ -67,54 +91,42 @@ export default function FixturesPage() {
         </select>
       </div>
 
-      <div className={styles.gamesList}>
-        {filteredGames.length > 0 ? (
-          filteredGames.map((game) => {
-            // Ensure all values are strings before rendering
-            const safeGame = {
-              ...game,
-              teamA: String(game.teamA || ""),
-              teamB: String(game.teamB || ""),
-              ageGroup: String(game.ageGroup || ""),
-            };
-
-            return (
-              <div key={game.id} className={styles.gameCard}>
-                <div className={styles.gameDate}>
-                  {game.fixtureDate
-                    ? new Date(game.fixtureDate).toLocaleDateString("en-US", {
-                        weekday: "long",
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
-                    : "Date TBD"}
-                </div>
-                <div className={styles.gameTeams}>
-                  <div className={styles.team}>
-                    <span className={styles.teamName}>{safeGame.teamA}</span>
-                  </div>
-                  <div className={styles.vs}>vs</div>
-                  <div className={styles.team}>
-                    <span className={styles.teamName}>{safeGame.teamB}</span>
-                  </div>
-                </div>
-                <div className={styles.gameMeta}>
-                  <span className={styles.ageGroup}>{safeGame.ageGroup}</span>
-                </div>
-                <Link
-                  href={`/game/${safeGame.gameNumber}`}
-                  className={styles.viewGame}
-                >
-                  View Game
-                </Link>
-              </div>
-            );
-          })
+      <div className={styles.fixturesList}>
+        {fixtures.length === 0 ? (
+          <p>No upcoming fixtures scheduled.</p>
         ) : (
-          <p className={styles.noGames}>No upcoming games scheduled</p>
+          fixtures.map((fixture) => (
+            <div key={fixture.id} className={styles.fixture}>
+              <div className={styles.fixtureHeader}>
+                <span className={styles.date}>
+                  {formatDate(fixture.fixtureDate)}
+                </span>
+                <span className={styles.time}>{fixture.fixtureTime}</span>
+              </div>
+              <div className={styles.teams}>
+                <div className={styles.team}>
+                  <span className={styles.teamName}>{fixture.teamA}</span>
+                  <span className={styles.division}>
+                    {fixture.teamADivision}
+                  </span>
+                </div>
+                <div className={styles.vs}>vs</div>
+                <div className={styles.team}>
+                  <span className={styles.teamName}>{fixture.teamB}</span>
+                  <span className={styles.division}>
+                    {fixture.teamBDivision}
+                  </span>
+                </div>
+              </div>
+              <div className={styles.details}>
+                <span className={styles.club}>{fixture.club}</span>
+                <span className={styles.ageGroup}>{fixture.ageGroup}</span>
+              </div>
+              <Link href={`/score/${fixture.id}`} className={styles.scoreLink}>
+                View Score
+              </Link>
+            </div>
+          ))
         )}
       </div>
     </div>

@@ -148,7 +148,6 @@ const Scoreboard = ({
     }
   };
 
-  console.log("SSHHHEHEEEEEEEEE", scoresheet);
   return (
     <>
       <div className={classes.oScoreBoard}>

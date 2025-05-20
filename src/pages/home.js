@@ -6,13 +6,20 @@ export default function Home() {
       <h1 style={{ display: "block", margin: "50px auto" }}>CTBL</h1>
       <Link
         className={`aBtn`}
+        href={"/fixtures"}
+        style={{ marginRight: "10px" }}
+      >
+        Upcoming Games
+      </Link>
+      <Link
+        className={`aBtn`}
         style={{ marginRight: "10px" }}
         href={"/standings"}
       >
         Standings
       </Link>
       <Link className={`aBtn`} href={"/score"}>
-        Games
+        Active Games
       </Link>
     </div>
   );
