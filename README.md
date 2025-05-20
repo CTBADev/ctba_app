@@ -1,7 +1,7 @@
 # CTBA League Management App
 
 
-NextJS14 basketball league management app built for Cape Town Basketball Association.
+NextJS14 Basketball League Management app built for Cape Town Basketball Association.
 
 ## FEATURES
 
