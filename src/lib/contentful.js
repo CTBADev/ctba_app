@@ -1,9 +1,10 @@
 import { createClient } from "contentful";
+import { C_SPACE_ID, C_DELIVERY_KEY } from "../helpers/contentful-config";
 
 export function getClient() {
   return createClient({
-    space: process.env.CONTENTFUL_SPACE_ID,
-    accessToken: process.env.CONTENTFUL_ACCESS_TOKEN,
+    space: C_SPACE_ID,
+    accessToken: C_DELIVERY_KEY,
   });
 }
 
