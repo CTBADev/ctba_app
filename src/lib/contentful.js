@@ -1,13 +1,15 @@
 import { createClient } from "contentful";
 
-const client = createClient({
-  space: process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID,
-  accessToken: process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN,
-});
+export function getClient() {
+  return createClient({
+    space: process.env.CONTENTFUL_SPACE_ID,
+    accessToken: process.env.CONTENTFUL_ACCESS_TOKEN,
+  });
+}
 
 export async function getAllGames() {
   try {
-    const response = await client.getEntries({
+    const response = await getClient().getEntries({
       content_type: "game",
       include: 2,
     });
@@ -69,7 +71,7 @@ export async function getAllGames() {
 
 export async function getGameById(id) {
   try {
-    const response = await client.getEntry(id);
+    const response = await getClient().getEntry(id);
     return {
       id: response.sys.id,
       ...response.fields,

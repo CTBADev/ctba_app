@@ -1,0 +1,150 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.logoContainer {
+  flex-shrink: 0;
+}
+
+.logo {
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+.headerContent {
+  flex-grow: 1;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin: 0;
+  color: #1a1a1a;
+}
+
+.subtitle {
+  font-size: 1.5rem;
+  color: #666;
+  margin: 0.5rem 0 0;
+}
+
+.content {
+  display: grid;
+  gap: 2rem;
+}
+
+.description {
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  padding: 2rem;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.location,
+.contact {
+  padding: 1rem;
+}
+
+.location h3,
+.contact h3 {
+  margin: 0 0 0.5rem;
+  color: #333;
+}
+
+.teams {
+  margin-top: 2rem;
+}
+
+.teamGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.teamCard {
+  padding: 1.5rem;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.teamCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.teamCard h4 {
+  margin: 0 0 0.5rem;
+  color: #1a1a1a;
+}
+
+.ageGroup {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Rich Text Styles */
+.heading1 {
+  font-size: 2rem;
+  margin: 2rem 0 1rem;
+}
+
+.heading2 {
+  font-size: 1.75rem;
+  margin: 1.75rem 0 0.875rem;
+}
+
+.heading3 {
+  font-size: 1.5rem;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.paragraph {
+  margin: 1rem 0;
+}
+
+.ul,
+.ol {
+  margin: 1rem 0;
+  padding-left: 2rem;
+}
+
+.li {
+  margin: 0.5rem 0;
+}
+
+.quote {
+  margin: 1.5rem 0;
+  padding: 1rem 1.5rem;
+  border-left: 4px solid #e0e0e0;
+  background: #f9f9f9;
+  font-style: italic;
+}
+
+.link {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
