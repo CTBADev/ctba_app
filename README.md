@@ -3,6 +3,10 @@
 
 NextJS14 basketball league management app.
 
+## FEATURES
+
+- in game scoreboard
+- scores page updated from scoreboard
 
 
 
