@@ -1,10 +1,15 @@
 import { createClient } from "contentful";
-import { C_SPACE_ID, C_DELIVERY_KEY } from "../helpers/contentful-config";
+
+// Get environment variables
+const spaceId = process.env.CONTENTFUL_SPACE_ID;
+const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN;
+const cmaKey = process.env.CONTENTFUL_MANAGEMENT_ACCESS_TOKEN;
+const graphqlUrl = `https://graphql.contentful.com/content/v1/spaces/${spaceId}/environments/master`;
 
 export function getClient() {
   return createClient({
-    space: C_SPACE_ID,
-    accessToken: C_DELIVERY_KEY,
+    space: spaceId,
+    accessToken: accessToken,
   });
 }
 
