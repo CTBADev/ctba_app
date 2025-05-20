@@ -21,7 +21,7 @@ const GameScore = () => {
   };
   if (selectedGame) {
     return (
-      <div>
+      <div className="container-fluid">
         <Scoreboard
           entryId={selectedGame.id}
           initialTeamA={selectedGame.teamA}
