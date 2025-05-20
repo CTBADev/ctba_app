@@ -5,14 +5,13 @@ import ImageUpload from "../imageUpload/ImageUpload";
 import Link from "next/link";
 import { updateGameScore } from "../../../../lib/contentful";
 import Image from "next/image";
-const {
-  C_SPACE_ID,
-  C_CMA_KEY,
-} = require("../../../../helpers/contentful-config");
 
-// Clean the CMA token by taking only the first line and trimming whitespace
-const cleanToken = C_CMA_KEY.split("\n")[0].trim();
-const contentfulClient = createClient({ accessToken: cleanToken });
+// Get environment variables
+const spaceId = process.env.CONTENTFUL_SPACE_ID;
+const cmaKey = process.env.CONTENTFUL_MANAGEMENT_ACCESS_TOKEN;
+
+// Only create CMA client if we have the key
+const contentfulClient = cmaKey ? createClient({ accessToken: cmaKey }) : null;
 
 const Scoreboard = ({
   entryId,
@@ -99,10 +98,15 @@ const Scoreboard = ({
     }
   };
   const handleImageUpload = async (file) => {
+    if (!contentfulClient) {
+      console.error("Contentful Management API not configured");
+      return;
+    }
+
     try {
       setImageUrl(null);
       setIsLoading(true);
-      const space = await contentfulClient.getSpace(C_SPACE_ID);
+      const space = await contentfulClient.getSpace(spaceId);
       const environment = await space.getEnvironment("master");
       let asset = await environment.createAssetFromFiles({
         fields: {

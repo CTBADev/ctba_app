@@ -1,5 +1,8 @@
 import { createClient } from "contentful-management";
-const { C_SPACE_ID, C_CMA_KEY } = require("../../../helpers/contentful-config");
+
+// Get environment variables
+const spaceId = process.env.CONTENTFUL_SPACE_ID;
+const cmaKey = process.env.CONTENTFUL_MANAGEMENT_ACCESS_TOKEN;
 
 // Queue to store pending updates
 const updateQueue = new Map();
@@ -14,12 +17,11 @@ async function processGameUpdates(gameId) {
   const latestUpdate = updates[updates.length - 1];
 
   try {
-    const cmaToken = C_CMA_KEY.split("\n")[0].trim();
     const client = createClient({
-      accessToken: cmaToken,
+      accessToken: cmaKey,
     });
 
-    const space = await client.getSpace(C_SPACE_ID);
+    const space = await client.getSpace(spaceId);
     const environment = await space.getEnvironment("master");
     const entry = await environment.getEntry(gameId);
 
@@ -90,44 +92,29 @@ export default async function handler(req, res) {
     console.log("New scores:", { scoreA, scoreB });
 
     const client = createClient({
-      accessToken: C_CMA_KEY,
+      accessToken: cmaKey,
     });
 
-    const space = await client.getSpace(C_SPACE_ID);
+    const space = await client.getSpace(spaceId);
     const environment = await space.getEnvironment("master");
     const entry = await environment.getEntry(gameId);
 
-    // Get current version and fields
-    const version = entry.sys.version;
-    const fields = entry.fields;
-
-    // Update only the score fields
-    fields.scoreA = { "en-US": scoreA };
-    fields.scoreB = { "en-US": scoreB };
+    // Update the fields
+    entry.fields.scoreA = { "en-US": scoreA };
+    entry.fields.scoreB = { "en-US": scoreB };
 
     // Update results based on scores
     if (scoreA > scoreB) {
-      fields.resultTeamA = { "en-US": "W" };
-      fields.resultTeamB = { "en-US": "L" };
+      entry.fields.resultTeamA = { "en-US": "W" };
+      entry.fields.resultTeamB = { "en-US": "L" };
     } else if (scoreB > scoreA) {
-      fields.resultTeamA = { "en-US": "L" };
-      fields.resultTeamB = { "en-US": "W" };
+      entry.fields.resultTeamA = { "en-US": "L" };
+      entry.fields.resultTeamB = { "en-US": "W" };
     }
 
-    // Update the entry
-    const updatedEntry = await environment.updateEntry(
-      gameId,
-      {
-        fields,
-      },
-      version
-    );
-
-    // Publish the entry
-    const publishedEntry = await environment.publishEntry(
-      gameId,
-      updatedEntry.sys.version
-    );
+    // Update and publish the entry
+    const updatedEntry = await entry.update();
+    const publishedEntry = await updatedEntry.publish();
 
     return res.status(200).json({
       message: "Score updated successfully",
