@@ -139,11 +139,19 @@ export async function getVenues() {
       order: "fields.name",
     });
 
+    if (!response.items || response.items.length === 0) {
+      console.log("No venues found in Contentful");
+      return [];
+    }
+
     return response.items.map((item) => ({
-      id: item.sys.id,
-      name: item.fields.name || null,
-      address: item.fields.address || null,
-      courtCount: item.fields.courtCount || 1,
+      sys: item.sys,
+      fields: {
+        name: item.fields.name || null,
+        physicalAddress: item.fields.physicalAddress || null,
+        address: item.fields.address || null,
+        googleMapLink: item.fields.googleMapLink || null,
+      },
     }));
   } catch (error) {
     console.error("Error fetching venues:", error);
@@ -213,6 +221,78 @@ export async function getAgeGroups() {
     }));
   } catch (error) {
     console.error("Error fetching age groups:", error);
+    return [];
+  }
+}
+
+export async function getGames() {
+  try {
+    console.log("Fetching games from Contentful...");
+    const response = await client.getEntries({
+      content_type: "game",
+      include: 3, // Include linked entries up to 3 levels deep
+      order: "fields.fixtureDate",
+    });
+
+    if (!response.items || response.items.length === 0) {
+      console.log("No games found in Contentful");
+      return [];
+    }
+
+    // Debug log the first game to see its structure
+    if (response.items.length > 0) {
+      console.log(
+        "Sample game data:",
+        JSON.stringify(response.items[0], null, 2)
+      );
+    }
+
+    return response.items.map((item) => ({
+      sys: item.sys,
+      fields: {
+        gameNumber: item.fields.gameNumber || null,
+        teamA: item.fields.teamA || null,
+        teamB: item.fields.teamB || null,
+        ageGroup: item.fields.ageGroup || null,
+        venue: item.fields.venue || null,
+        courtNumber: item.fields.courtNumber || null,
+        fixtureDate: item.fields.fixtureDate || null,
+        scoreA: item.fields.scoreA || null,
+        scoreB: item.fields.scoreB || null,
+        isLocked: item.fields.isLocked || false,
+        resultTeamA: item.fields.resultTeamA || null,
+        resultTeamB: item.fields.resultTeamB || null,
+        status: item.fields.status || null,
+        scoresheet: item.fields.scoresheet || null,
+      },
+    }));
+  } catch (error) {
+    console.error("Error fetching games:", error);
+    return [];
+  }
+}
+
+export async function getDivisions() {
+  try {
+    const response = await client.getEntries({
+      content_type: "division",
+      order: "fields.name",
+    });
+
+    if (!response.items || response.items.length === 0) {
+      console.log("No divisions found in Contentful");
+      return [];
+    }
+
+    return response.items.map((item) => ({
+      sys: item.sys,
+      fields: {
+        name: item.fields.name || null,
+        description: item.fields.description || null,
+      },
+    }));
+  } catch (error) {
+    console.error("Error fetching divisions:", error);
     return [];
   }
 }

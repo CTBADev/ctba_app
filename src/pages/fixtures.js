@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { getAllGames, getFutureFixtures } from "../../lib/contentful";
+import { getGames, getDivisions, getVenues } from "../lib/contentful";
 import Link from "next/link";
 import styles from "./Fixtures.module.css";
 import { useRouter } from "next/router";
-import { getGames, getDivisions, getVenues } from "../lib/contentful";
 import { format } from "date-fns";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -22,8 +21,7 @@ function formatDate(dateString) {
 
 export async function getServerSideProps() {
   try {
-    const [fixtures, games, divisions, venues] = await Promise.all([
-      getFutureFixtures(),
+    const [games, divisions, venues] = await Promise.all([
       getGames(),
       getDivisions(),
       getVenues(),
@@ -31,7 +29,6 @@ export async function getServerSideProps() {
 
     return {
       props: {
-        fixtures,
         games,
         divisions,
         venues,
@@ -41,7 +38,6 @@ export async function getServerSideProps() {
     console.error("Error fetching data:", error);
     return {
       props: {
-        fixtures: [],
         games: [],
         divisions: [],
         venues: [],
@@ -51,7 +47,6 @@ export async function getServerSideProps() {
 }
 
 export default function Fixtures({
-  fixtures: initialFixtures,
   games: initialGames,
   divisions: initialDivisions,
   venues: initialVenues,
@@ -65,39 +60,81 @@ export default function Fixtures({
   const { user } = useAuth();
   const router = useRouter();
 
-  // Sort games by date and time
-  const sortedGames = games.sort((a, b) => {
-    const dateA = new Date(a.fixtureDate);
-    const dateB = new Date(b.fixtureDate);
-    return dateA - dateB;
-  });
+  // Get current date and time
+  const now = new Date();
+
+  // Sort games by date and time, and filter for future games only
+  const sortedGames = games
+    .filter((game) => {
+      const gameDate = new Date(game.fields.fixtureDate);
+      return gameDate > now;
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.fields.fixtureDate);
+      const dateB = new Date(b.fields.fixtureDate);
+      return dateA - dateB;
+    });
 
   const filteredGames = sortedGames.filter((game) => {
     const divisionMatch =
-      selectedDivision === "all" || game.ageGroup?.name === selectedDivision;
+      selectedDivision === "all" ||
+      game.fields.ageGroup?.fields?.name === selectedDivision;
     const venueMatch =
-      selectedVenue === "all" || game.venue?.name === selectedVenue;
+      selectedVenue === "all" ||
+      game.fields.venue?.fields?.name === selectedVenue;
     return divisionMatch && venueMatch;
   });
 
-  // Group games by venue
-  const gamesByVenue = filteredGames.reduce((acc, game) => {
-    const venueName = game.venue?.name || "Unassigned Venue";
-    if (!acc[venueName]) {
-      acc[venueName] = [];
+  // Group games by date first, then by venue
+  const gamesByDateAndVenue = filteredGames.reduce((acc, game) => {
+    const gameDate = new Date(game.fields.fixtureDate);
+    const dateKey = format(gameDate, "yyyy-MM-dd");
+    const venueName = game.fields.venue?.fields?.name || "Unassigned Venue";
+
+    if (!acc[dateKey]) {
+      acc[dateKey] = {};
     }
-    acc[venueName].push(game);
+    if (!acc[dateKey][venueName]) {
+      acc[dateKey][venueName] = [];
+    }
+    acc[dateKey][venueName].push(game);
     return acc;
   }, {});
 
-  // Sort venues by name
-  const sortedVenueNames = Object.keys(gamesByVenue).sort();
+  // Sort dates
+  const sortedDates = Object.keys(gamesByDateAndVenue).sort();
+
+  // Debug log
+  console.log("Current time:", now);
+  console.log("Games by Date and Venue:", gamesByDateAndVenue);
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
         <div className="relative py-3 sm:max-w-xl sm:mx-auto">
           <div className="text-center">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // If no future games, show a message
+  if (sortedGames.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
+        <div className="relative py-3 sm:max-w-7xl sm:mx-auto">
+          <div className="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
+            <div className="max-w-7xl mx-auto">
+              <div className="text-center">
+                <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+                  Fixtures
+                </h1>
+                <p className="mt-4 text-lg text-gray-500">
+                  No upcoming fixtures scheduled.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -123,8 +160,8 @@ export default function Fixtures({
               >
                 <option value="all">All Divisions</option>
                 {divisions.map((division) => (
-                  <option key={division.sys.id} value={division.name}>
-                    {division.name}
+                  <option key={division.sys.id} value={division.fields.name}>
+                    {division.fields.name}
                   </option>
                 ))}
               </select>
@@ -136,75 +173,91 @@ export default function Fixtures({
               >
                 <option value="all">All Venues</option>
                 {venues.map((venue) => (
-                  <option key={venue.sys.id} value={venue.name}>
-                    {venue.name}
+                  <option key={venue.sys.id} value={venue.fields.name}>
+                    {venue.fields.name}
                   </option>
                 ))}
               </select>
             </div>
 
-            {/* Games by Venue */}
-            <div className="mt-8 space-y-8">
-              {sortedVenueNames.map((venueName) => (
-                <div
-                  key={venueName}
-                  className="bg-white shadow overflow-hidden sm:rounded-lg"
-                >
-                  <div className="px-4 py-5 sm:px-6 bg-gray-50">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900">
-                      {venueName}
-                    </h3>
-                  </div>
-                  <div className="border-t border-gray-200">
-                    <div className="bg-white divide-y divide-gray-200">
-                      {gamesByVenue[venueName].map((game) => (
+            {/* Games by Date and Venue */}
+            <div className="mt-8 space-y-12">
+              {sortedDates.map((dateKey) => (
+                <div key={dateKey} className="space-y-6">
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    {format(new Date(dateKey), "EEEE, MMMM d, yyyy")}
+                  </h2>
+                  <div className="space-y-8">
+                    {Object.entries(gamesByDateAndVenue[dateKey])
+                      .sort(([venueA], [venueB]) =>
+                        venueA.localeCompare(venueB)
+                      )
+                      .map(([venueName, games]) => (
                         <div
-                          key={game.sys.id}
-                          className="px-4 py-4 sm:px-6 hover:bg-gray-50"
+                          key={venueName}
+                          className="bg-white shadow overflow-hidden sm:rounded-lg"
                         >
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-indigo-600 truncate">
-                                {game.gameNumber} - {game.ageGroup?.name}
-                              </p>
-                              <p className="mt-1 text-sm text-gray-500">
-                                {format(
-                                  new Date(game.fixtureDate),
-                                  "EEEE, MMMM d, yyyy"
-                                )}{" "}
-                                at{" "}
-                                {format(new Date(game.fixtureDate), "h:mm a")}
-                                {game.courtNumber &&
-                                  ` - Court ${game.courtNumber}`}
-                              </p>
-                            </div>
-                            <div className="flex-1 text-center">
-                              <p className="text-sm font-medium text-gray-900">
-                                {game.teamA?.clubName} vs {game.teamB?.clubName}
-                              </p>
-                              {game.scoreA !== undefined &&
-                                game.scoreB !== undefined && (
-                                  <p className="mt-1 text-sm text-gray-500">
-                                    {game.scoreA} - {game.scoreB}
-                                  </p>
-                                )}
-                            </div>
-                            {user && (
-                              <div className="ml-4 flex-shrink-0">
-                                <button
-                                  onClick={() =>
-                                    router.push(`/update-score/${game.sys.id}`)
-                                  }
-                                  className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                          <div className="px-4 py-5 sm:px-6 bg-gray-50">
+                            <h3 className="text-lg leading-6 font-medium text-gray-900">
+                              {venueName}
+                            </h3>
+                          </div>
+                          <div className="border-t border-gray-200">
+                            <div className="bg-white divide-y divide-gray-200">
+                              {games.map((game) => (
+                                <div
+                                  key={game.sys.id}
+                                  className="px-4 py-4 sm:px-6 hover:bg-gray-50"
                                 >
-                                  Update Score
-                                </button>
-                              </div>
-                            )}
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-sm font-medium text-indigo-600 truncate">
+                                        {game.fields.gameNumber} -{" "}
+                                        {game.fields.ageGroup?.fields?.name}
+                                      </p>
+                                      <p className="mt-1 text-sm text-gray-500">
+                                        {format(
+                                          new Date(game.fields.fixtureDate),
+                                          "h:mm a"
+                                        )}
+                                        {game.fields.courtNumber &&
+                                          ` - Court ${game.fields.courtNumber}`}
+                                      </p>
+                                    </div>
+                                    <div className="flex-1 text-center">
+                                      <p className="text-sm font-medium text-gray-900">
+                                        {game.fields.teamA?.fields?.clubName} vs{" "}
+                                        {game.fields.teamB?.fields?.clubName}
+                                      </p>
+                                      {game.fields.scoreA !== undefined &&
+                                        game.fields.scoreB !== undefined && (
+                                          <p className="mt-1 text-sm text-gray-500">
+                                            {game.fields.scoreA} -{" "}
+                                            {game.fields.scoreB}
+                                          </p>
+                                        )}
+                                    </div>
+                                    {user && (
+                                      <div className="ml-4 flex-shrink-0">
+                                        <button
+                                          onClick={() =>
+                                            router.push(
+                                              `/update-score/${game.sys.id}`
+                                            )
+                                          }
+                                          className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                        >
+                                          Update Score
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         </div>
                       ))}
-                    </div>
                   </div>
                 </div>
               ))}
