@@ -60,7 +60,7 @@ const GameScore = () => {
               )}
             </>
             <>
-              {!game.isLocked && (
+              {game.isLocked && (
                 <button onClick={() => setSelectedGame(game)}>
                   Update Score
                 </button>
