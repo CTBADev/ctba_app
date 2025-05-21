@@ -110,29 +110,22 @@ export default function Fixtures({
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
-        <div className="relative py-3 sm:max-w-xl sm:mx-auto">
-          <div className="text-center">Loading...</div>
+      <div className={styles.container}>
+        <div className={styles.wrapper}>
+          <div className={styles.loading}>Loading...</div>
         </div>
       </div>
     );
   }
 
-  // If no future games, show a message
   if (sortedGames.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
-        <div className="relative py-3 sm:max-w-7xl sm:mx-auto">
-          <div className="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
-            <div className="max-w-7xl mx-auto">
-              <div className="text-center">
-                <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-                  Fixtures
-                </h1>
-                <p className="mt-4 text-lg text-gray-500">
-                  No upcoming fixtures scheduled.
-                </p>
-              </div>
+      <div className={styles.container}>
+        <div className={styles.wrapper}>
+          <div className={styles.content}>
+            <div className={styles.header}>
+              <h1 className={styles.title}>Fixtures</h1>
+              <p className={styles.noGames}>No upcoming fixtures scheduled.</p>
             </div>
           </div>
         </div>
@@ -141,22 +134,27 @@ export default function Fixtures({
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
-      <div className="relative py-3 sm:max-w-7xl sm:mx-auto">
-        <div className="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center">
-              <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-                Fixtures
-              </h1>
-            </div>
+    <div className={styles.container}>
+      <div className={styles.wrapper}>
+        <div className={styles.content}>
+          <div className={styles.header}>
+            <h1 className={styles.title}>Fixtures</h1>
+            <p className={styles.subtitle}>
+              View and manage upcoming basketball fixtures
+            </p>
+          </div>
 
-            {/* Filters */}
-            <div className="mt-8 flex flex-wrap gap-4 justify-center">
+          {/* Filters */}
+          <div className={styles.filters}>
+            <div className={styles.filterGroup}>
+              <label htmlFor="division" className={styles.filterLabel}>
+                Division
+              </label>
               <select
+                id="division"
                 value={selectedDivision}
                 onChange={(e) => setSelectedDivision(e.target.value)}
-                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                className={styles.select}
               >
                 <option value="all">All Divisions</option>
                 {divisions.map((division) => (
@@ -165,11 +163,17 @@ export default function Fixtures({
                   </option>
                 ))}
               </select>
+            </div>
 
+            <div className={styles.filterGroup}>
+              <label htmlFor="venue" className={styles.filterLabel}>
+                Venue
+              </label>
               <select
+                id="venue"
                 value={selectedVenue}
                 onChange={(e) => setSelectedVenue(e.target.value)}
-                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                className={styles.select}
               >
                 <option value="all">All Venues</option>
                 {venues.map((venue) => (
@@ -179,89 +183,71 @@ export default function Fixtures({
                 ))}
               </select>
             </div>
+          </div>
 
-            {/* Games by Date and Venue */}
-            <div className="mt-8 space-y-12">
-              {sortedDates.map((dateKey) => (
-                <div key={dateKey} className="space-y-6">
-                  <h2 className="text-2xl font-bold text-gray-900">
-                    {format(new Date(dateKey), "EEEE, MMMM d, yyyy")}
-                  </h2>
-                  <div className="space-y-8">
-                    {Object.entries(gamesByDateAndVenue[dateKey])
-                      .sort(([venueA], [venueB]) =>
-                        venueA.localeCompare(venueB)
-                      )
-                      .map(([venueName, games]) => (
-                        <div
-                          key={venueName}
-                          className="bg-white shadow overflow-hidden sm:rounded-lg"
-                        >
-                          <div className="px-4 py-5 sm:px-6 bg-gray-50">
-                            <h3 className="text-lg leading-6 font-medium text-gray-900">
-                              {venueName}
-                            </h3>
-                          </div>
-                          <div className="border-t border-gray-200">
-                            <div className="bg-white divide-y divide-gray-200">
-                              {games.map((game) => (
-                                <div
-                                  key={game.sys.id}
-                                  className="px-4 py-4 sm:px-6 hover:bg-gray-50"
-                                >
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex-1 min-w-0">
-                                      <p className="text-sm font-medium text-indigo-600 truncate">
-                                        {game.fields.gameNumber} -{" "}
-                                        {game.fields.ageGroup?.fields?.name}
-                                      </p>
-                                      <p className="mt-1 text-sm text-gray-500">
-                                        {format(
-                                          new Date(game.fields.fixtureDate),
-                                          "h:mm a"
-                                        )}
-                                        {game.fields.courtNumber &&
-                                          ` - Court ${game.fields.courtNumber}`}
-                                      </p>
-                                    </div>
-                                    <div className="flex-1 text-center">
-                                      <p className="text-sm font-medium text-gray-900">
-                                        {game.fields.teamA?.fields?.clubName} vs{" "}
-                                        {game.fields.teamB?.fields?.clubName}
-                                      </p>
-                                      {game.fields.scoreA !== undefined &&
-                                        game.fields.scoreB !== undefined && (
-                                          <p className="mt-1 text-sm text-gray-500">
-                                            {game.fields.scoreA} -{" "}
-                                            {game.fields.scoreB}
-                                          </p>
-                                        )}
-                                    </div>
-                                    {user && (
-                                      <div className="ml-4 flex-shrink-0">
-                                        <button
-                                          onClick={() =>
-                                            router.push(
-                                              `/update-score/${game.sys.id}`
-                                            )
-                                          }
-                                          className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                        >
-                                          Update Score
-                                        </button>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
+          {/* Games by Date and Venue */}
+          <div className={styles.gamesContainer}>
+            {sortedDates.map((dateKey) => (
+              <div key={dateKey} className={styles.dateSection}>
+                <h2 className={styles.dateHeader}>
+                  {format(new Date(dateKey), "EEEE, MMMM d, yyyy")}
+                </h2>
+                <div>
+                  {Object.entries(gamesByDateAndVenue[dateKey])
+                    .sort(([venueA], [venueB]) => venueA.localeCompare(venueB))
+                    .map(([venueName, games]) => (
+                      <div key={venueName} className={styles.venueCard}>
+                        <div className={styles.venueHeader}>
+                          <h3 className={styles.venueTitle}>{venueName}</h3>
                         </div>
-                      ))}
-                  </div>
+                        <div className={styles.gameList}>
+                          {games.map((game) => (
+                            <div key={game.sys.id} className={styles.gameItem}>
+                              <div className={styles.gameInfo}>
+                                <p className={styles.gameNumber}>
+                                  {game.fields.gameNumber} -{" "}
+                                  {game.fields.ageGroup?.fields?.name}
+                                </p>
+                                <p className={styles.gameTime}>
+                                  {format(
+                                    new Date(game.fields.fixtureDate),
+                                    "h:mm a"
+                                  )}
+                                  {game.fields.courtNumber &&
+                                    ` - Court ${game.fields.courtNumber}`}
+                                </p>
+                              </div>
+                              <div className={styles.gameTeams}>
+                                <p className={styles.teamNames}>
+                                  {game.fields.teamA?.fields?.clubName} vs{" "}
+                                  {game.fields.teamB?.fields?.clubName}
+                                </p>
+                                {game.fields.scoreA !== undefined &&
+                                  game.fields.scoreB !== undefined && (
+                                    <p className={styles.score}>
+                                      {game.fields.scoreA} -{" "}
+                                      {game.fields.scoreB}
+                                    </p>
+                                  )}
+                              </div>
+                              {user && (
+                                <button
+                                  onClick={() =>
+                                    router.push(`/update-score/${game.sys.id}`)
+                                  }
+                                  className={styles.updateButton}
+                                >
+                                  Update Score
+                                </button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
