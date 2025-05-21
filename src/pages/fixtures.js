@@ -20,57 +20,59 @@ function formatDate(dateString) {
     .replace(/,/g, ""); // Remove commas for consistency
 }
 
-export async function getStaticProps() {
-  const fixtures = await getFutureFixtures();
-  return {
-    props: {
-      fixtures,
-    },
-    // Revalidate every 5 minutes
-    revalidate: 300,
-  };
+export async function getServerSideProps() {
+  try {
+    const [fixtures, games, divisions, venues] = await Promise.all([
+      getFutureFixtures(),
+      getGames(),
+      getDivisions(),
+      getVenues(),
+    ]);
+
+    return {
+      props: {
+        fixtures,
+        games,
+        divisions,
+        venues,
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return {
+      props: {
+        fixtures: [],
+        games: [],
+        divisions: [],
+        venues: [],
+      },
+    };
+  }
 }
 
-export default function Fixtures() {
-  const [games, setGames] = useState([]);
-  const [divisions, setDivisions] = useState([]);
-  const [venues, setVenues] = useState([]);
+export default function Fixtures({
+  fixtures: initialFixtures,
+  games: initialGames,
+  divisions: initialDivisions,
+  venues: initialVenues,
+}) {
+  const [games, setGames] = useState(initialGames);
+  const [divisions, setDivisions] = useState(initialDivisions);
+  const [venues, setVenues] = useState(initialVenues);
   const [selectedDivision, setSelectedDivision] = useState("all");
   const [selectedVenue, setSelectedVenue] = useState("all");
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [gamesData, divisionsData, venuesData] = await Promise.all([
-          getGames(),
-          getDivisions(),
-          getVenues(),
-        ]);
+  // Sort games by date and time
+  const sortedGames = games.sort((a, b) => {
+    const dateA = new Date(a.fixtureDate);
+    const dateB = new Date(b.fixtureDate);
+    return dateA - dateB;
+  });
 
-        // Sort games by date and time
-        const sortedGames = gamesData.sort((a, b) => {
-          const dateA = new Date(a.fixtureDate);
-          const dateB = new Date(b.fixtureDate);
-          return dateA - dateB;
-        });
-
-        setGames(sortedGames);
-        setDivisions(divisionsData);
-        setVenues(venuesData);
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  const filteredGames = games.filter((game) => {
+  const filteredGames = sortedGames.filter((game) => {
     const divisionMatch =
       selectedDivision === "all" || game.ageGroup?.name === selectedDivision;
     const venueMatch =

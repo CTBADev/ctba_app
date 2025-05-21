@@ -58,8 +58,23 @@ const Standings = ({ games }) => {
         };
       }
 
+      // Check for 20-0 score (forfeit)
+      const isForfeit =
+        (game.scoreA === 20 && game.scoreB === 0) ||
+        (game.scoreA === 0 && game.scoreB === 20);
+
       // Update records based on results
-      if (game.resultTeamA === "W") {
+      if (isForfeit) {
+        if (game.scoreA === 20) {
+          standings[ageGroup][game.teamA].wins++;
+          standings[ageGroup][game.teamA].points += 2;
+          standings[ageGroup][game.teamB].forfeits++;
+        } else {
+          standings[ageGroup][game.teamB].wins++;
+          standings[ageGroup][game.teamB].points += 2;
+          standings[ageGroup][game.teamA].forfeits++;
+        }
+      } else if (game.resultTeamA === "W") {
         standings[ageGroup][game.teamA].wins++;
         standings[ageGroup][game.teamA].points += 2;
         standings[ageGroup][game.teamB].losses++;
