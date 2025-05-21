@@ -11,6 +11,7 @@ NextJS14 Basketball League Management app built for Cape Town Basketball Associa
 - fixtures view with upcoming games
 - csv results imports
 - batch game processing
+- secure admin login
 
 
 ## TECH
