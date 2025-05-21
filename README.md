@@ -8,7 +8,7 @@ NextJS14 Basketball League Management app built for Cape Town Basketball Associa
 - in game scoreboard
 - scores page updated from scoreboard
 - standings tables based on live results
-- upcoming fixtures
+- upcoming fixtures grouped by date and venue with filtering
 - csv results imports
 - batch game processing
 - secure admin login
