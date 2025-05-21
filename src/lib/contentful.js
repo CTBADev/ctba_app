@@ -131,3 +131,88 @@ export async function updateGameScore(gameId, scoreA, scoreB) {
     throw error;
   }
 }
+
+export async function getVenues() {
+  try {
+    const response = await client.getEntries({
+      content_type: "venue",
+      order: "fields.name",
+    });
+
+    return response.items.map((item) => ({
+      id: item.sys.id,
+      name: item.fields.name || null,
+      address: item.fields.address || null,
+      courtCount: item.fields.courtCount || 1,
+    }));
+  } catch (error) {
+    console.error("Error fetching venues:", error);
+    return [];
+  }
+}
+
+export async function getClubs() {
+  try {
+    const response = await client.getEntries({
+      content_type: "club",
+      order: "fields.clubName",
+    });
+
+    return response.items.map((item) => ({
+      id: item.sys.id,
+      name: item.fields.clubName || null,
+      shortName: item.fields.shortName || null,
+      logo: item.fields.logo?.fields?.file?.url || null,
+    }));
+  } catch (error) {
+    console.error("Error fetching clubs:", error);
+    return [];
+  }
+}
+
+export async function getClubBySlug(slug) {
+  try {
+    const response = await client.getEntries({
+      content_type: "club",
+      "fields.slug": slug,
+    });
+
+    if (!response.items.length) {
+      return null;
+    }
+
+    const club = response.items[0];
+    return {
+      id: club.sys.id,
+      name: club.fields.clubName || null,
+      shortName: club.fields.shortName || null,
+      logo: club.fields.logo?.fields?.file?.url || null,
+      description: club.fields.description || null,
+      website: club.fields.website || null,
+      email: club.fields.email || null,
+      phone: club.fields.phone || null,
+      address: club.fields.address || null,
+    };
+  } catch (error) {
+    console.error(`Error fetching club ${slug}:`, error);
+    return null;
+  }
+}
+
+export async function getAgeGroups() {
+  try {
+    const response = await client.getEntries({
+      content_type: "division",
+      order: "fields.name",
+    });
+
+    return response.items.map((item) => ({
+      id: item.sys.id,
+      name: item.fields.name || null,
+      description: item.fields.description || null,
+    }));
+  } catch (error) {
+    console.error("Error fetching age groups:", error);
+    return [];
+  }
+}
