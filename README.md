@@ -21,3 +21,6 @@ NextJS14 Basketball League Management app built for Cape Town Basketball Associa
 
 DEMO URL: 
 https://ctbaapp.vercel.app
+
+LIVE URL:
+https://league.ctba.co.za
