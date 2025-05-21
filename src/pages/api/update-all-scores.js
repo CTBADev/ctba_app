@@ -58,9 +58,21 @@ export default async function handler(req, res) {
           // Get the latest version of the entry
           const freshEntry = await environment.getEntry(game.sys.id);
 
+          // Check for 20-0 score (forfeit)
+          const isForfeit =
+            (scoreA === 20 && scoreB === 0) || (scoreA === 0 && scoreB === 20);
+
           // Determine result based on scores
           let resultTeamA, resultTeamB;
-          if (scoreA > scoreB) {
+          if (isForfeit) {
+            if (scoreA === 20) {
+              resultTeamA = "W";
+              resultTeamB = "F";
+            } else {
+              resultTeamA = "F";
+              resultTeamB = "W";
+            }
+          } else if (scoreA > scoreB) {
             resultTeamA = "W";
             resultTeamB = "L";
           } else if (scoreA < scoreB) {
